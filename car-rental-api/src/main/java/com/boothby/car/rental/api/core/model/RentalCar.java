@@ -1,6 +1,6 @@
 package com.boothby.car.rental.api.core.model;
 
-public class Car {
+public class RentalCar {
 	
 	private String carId;
 	private String make;

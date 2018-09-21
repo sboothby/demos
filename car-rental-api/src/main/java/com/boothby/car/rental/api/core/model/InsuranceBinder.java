@@ -10,7 +10,7 @@ public class InsuranceBinder {
 	private Date endDateCoverage;
 	private float policyCost;
 	private float personalLiabilityAmount;
-	private float collissionAmount;
+	private float collisionAmount;
 	private boolean insuranceValidated;
 
 	public String getInsuranceBinderId() {
@@ -61,19 +61,19 @@ public class InsuranceBinder {
 		this.personalLiabilityAmount = personalLiabilityAmount;
 	}
 
-	public float getCollissionAmount() {
-		return collissionAmount;
-	}
-
-	public void setCollissionAmount(float collissionAmount) {
-		this.collissionAmount = collissionAmount;
-	}
-
 	public boolean isInsuranceValidated() {
 		return insuranceValidated;
 	}
 
 	public void setInsuranceValidated(boolean insuranceValidated) {
 		this.insuranceValidated = insuranceValidated;
+	}
+
+	public float getCollisionAmount() {
+		return collisionAmount;
+	}
+
+	public void setCollisionAmount(float collisionAmount) {
+		this.collisionAmount = collisionAmount;
 	}
 }

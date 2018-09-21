@@ -2,9 +2,9 @@ package com.boothby.car.rental.api.core.model;
 
 public class RentalContingencies {
 
-	private InsuranceBinder insurance;
-	private float driverScore;
-	private Car identifiedCar;
+	private InsuranceBinder insurance;		// insurance MUST be determined
+	private float driverScore;				// driver score MUST be high enough
+	private RentalCar identifiedCar;				// car MUST be located
 
 	public InsuranceBinder getInsurance() {
 		return insurance;
@@ -22,11 +22,11 @@ public class RentalContingencies {
 		this.driverScore = driverScore;
 	}
 
-	public Car getIdentifiedCar() {
+	public RentalCar getIdentifiedCar() {
 		return identifiedCar;
 	}
 
-	public void setIdentifiedCar(Car identifiedCar) {
+	public void setIdentifiedCar(RentalCar identifiedCar) {
 		this.identifiedCar = identifiedCar;
 	}
 }

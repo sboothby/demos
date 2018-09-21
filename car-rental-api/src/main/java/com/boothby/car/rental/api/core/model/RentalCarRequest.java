@@ -1,13 +1,17 @@
 package com.boothby.car.rental.api.core.model;
 
+import java.util.Date;
+
 public class RentalCarRequest {
 
 	private String make;
 	private String model;
 	private DriverInfo driverInfo;
 	private int durationDays;
+	private Date startDate;
 	private InsuranceBinder driverProvidedInsurance;
 	private float depositAmount;
+	private int searchMilesOut;
 	
 	public String getMake() {
 		return make;
@@ -41,6 +45,10 @@ public class RentalCarRequest {
 		this.driverInfo = driverInfo;
 	}
 
+	public boolean hasInsurance() {
+		return (getDriverProvidedInsurance() != null);
+	}
+	
 	public InsuranceBinder getDriverProvidedInsurance() {
 		return driverProvidedInsurance;
 	}
@@ -55,5 +63,21 @@ public class RentalCarRequest {
 
 	public void setDepositAmount(float depositAmount) {
 		this.depositAmount = depositAmount;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public int getSearchMilesOut() {
+		return searchMilesOut;
+	}
+
+	public void setSearchMilesOut(int searchMilesOut) {
+		this.searchMilesOut = searchMilesOut;
 	}
 }
