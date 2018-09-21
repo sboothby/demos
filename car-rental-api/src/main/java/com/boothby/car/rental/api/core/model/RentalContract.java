@@ -7,6 +7,7 @@ public class RentalContract {
 	private String contractId;
 	private Date startDate;
 	private int durationDays;
+	private DriverInfo driverInfo;
 
 	public String getContractId() {
 		return contractId;
@@ -25,5 +26,11 @@ public class RentalContract {
 	}
 	public void setDurationDays(int durationDays) {
 		this.durationDays = durationDays;
+	}
+	public DriverInfo getDriverInfo() {
+		return driverInfo;
+	}
+	public void setDriverInfo(DriverInfo driverInfo) {
+		this.driverInfo = driverInfo;
 	}
 }
