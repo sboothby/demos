@@ -12,6 +12,11 @@ public class RentalCarRequest {
 	private InsuranceBinder driverProvidedInsurance;
 	private float depositAmount;
 	private int searchMilesOut;
+	private VehicleClass vehicleClass;
+	
+	public RentalCarRequest() {
+		vehicleClass = VehicleClass.UNKNOWN;
+	}
 	
 	public String getMake() {
 		return make;
@@ -79,5 +84,13 @@ public class RentalCarRequest {
 
 	public void setSearchMilesOut(int searchMilesOut) {
 		this.searchMilesOut = searchMilesOut;
+	}
+
+	public VehicleClass getVehicleClass() {
+		return vehicleClass;
+	}
+
+	public void setVehicleClass(VehicleClass vehicleClass) {
+		this.vehicleClass = vehicleClass;
 	}
 }

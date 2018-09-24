@@ -5,7 +5,8 @@ public class RentalCar {
 	private String carId;
 	private String make;
 	private String model;
-	private String year;
+	private VehicleClass vehicleClass;
+	private int year;
 	private int miles;
 	private String locationCode;
 
@@ -27,12 +28,6 @@ public class RentalCar {
 	public void setModel(String model) {
 		this.model = model;
 	}
-	public String getYear() {
-		return year;
-	}
-	public void setYear(String year) {
-		this.year = year;
-	}
 	public int getMiles() {
 		return miles;
 	}
@@ -44,5 +39,17 @@ public class RentalCar {
 	}
 	public void setLocationCode(String locationCode) {
 		this.locationCode = locationCode;
+	}
+	public int getYear() {
+		return year;
+	}
+	public void setYear(int year) {
+		this.year = year;
+	}
+	public VehicleClass getVehicleClass() {
+		return vehicleClass;
+	}
+	public void setVehicleClass(VehicleClass vehicleClass) {
+		this.vehicleClass = vehicleClass;
 	}
 }

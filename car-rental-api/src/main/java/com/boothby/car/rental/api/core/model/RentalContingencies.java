@@ -4,7 +4,7 @@ public class RentalContingencies {
 
 	private InsuranceBinder insurance;		// insurance MUST be determined
 	private float driverScore;				// driver score MUST be high enough
-	private RentalCar identifiedCar;				// car MUST be located
+	private RentalCar identifiedCar;		// car MUST be located
 
 	public InsuranceBinder getInsurance() {
 		return insurance;
@@ -28,5 +28,9 @@ public class RentalContingencies {
 
 	public void setIdentifiedCar(RentalCar identifiedCar) {
 		this.identifiedCar = identifiedCar;
+	}
+	
+	public boolean contingenciesMet() {
+		return (insurance != null) && (driverScore != 0.0f) && (identifiedCar != null);
 	}
 }

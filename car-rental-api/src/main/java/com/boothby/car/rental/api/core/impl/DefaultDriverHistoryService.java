@@ -10,9 +10,13 @@ import com.boothby.car.rental.api.core.model.DriverInfo;
 public class DefaultDriverHistoryService implements DriverHistoryService {
 
 	@Override
-	public float verifyDMVScore(DriverInfo driverInfo) throws DriverException {
+	public float getDriverScore(DriverInfo driverInfo) throws DriverException {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	@Override
+	public void verifyDriverLicense(DriverInfo driverInfo) throws DriverException {
+		//TODO
+	}
 }

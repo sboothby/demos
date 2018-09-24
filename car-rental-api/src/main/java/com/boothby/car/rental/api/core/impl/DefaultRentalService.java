@@ -22,6 +22,7 @@ import com.boothby.car.rental.api.core.model.InsuranceBinder;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;
 import com.boothby.car.rental.api.core.model.RentalContingencies;
 import com.boothby.car.rental.api.core.model.RentalContract;
+import com.boothby.car.rental.api.core.model.VehicleClass;
 
 @Service("defaultRentalService")
 public class DefaultRentalService implements RentalService {
@@ -32,6 +33,9 @@ public class DefaultRentalService implements RentalService {
 	private static final String ERROR_MIN_DEPOSIT_NOT_MET = "The driver deposit (%3.2f) does not meet the minimum dollars (%3.2f)!";
 	private static final String ERROR_DRIVER_SCORE_TOO_LOW = "Driver DMV score obtained from state (%s) was too low (%3.2f), and does not meet minimum score (%3.2f)!";
 	private static final String ERROR_NAME_FIELDS_REQUIRED = "All name fields required!";
+	private static final String ERROR_DRIVER_LICENSE_REQUIRED = "Valid state driver license number is required!";
+	private static final String ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT = "Driver provided insurance is not in effect for the dates given (from: %s, to: %s)!";
+	private static final String ERROR_CAR_REQUEST_PARMS_MISSING = "Must specify make/model or vehicle class (%s)!";
 	
 	private static final float DRIVER_BASE_SCORE = 50.0f;
 	private static final int RENTAL_SEARCH_MAX_MILES = 25;
@@ -55,11 +59,9 @@ public class DefaultRentalService implements RentalService {
 	@Override
 	public RentalContract rentCar(RentalCarRequest rentalCarRequest)
 			throws RentalValidationException, DriverException, CarNotFoundException, InsuranceException {
-		// Validate the request, if anything is invalid, terminate processing with
-		// exception.
+		// Validate the request, if anything is invalid, terminate processing with exception.
 		validateRentalRequest(rentalCarRequest);
-		// Resolve all contingencies required for the contract to be approved and
-		// created.
+		// Resolve all contingencies required for the contract to be approved and created.
 		RentalContingencies contingencies = new RentalContingencies();
 		// Confirm insurance.
 		if (!rentalCarRequest.hasInsurance()) {
@@ -72,7 +74,8 @@ public class DefaultRentalService implements RentalService {
 			contingencies.setInsurance(rentalCarRequest.getDriverProvidedInsurance());
 		}
 	    // Check driver/DMV history.
-	    float driverScore = driverHistoryService.verifyDMVScore(rentalCarRequest.getDriverInfo());
+		driverHistoryService.verifyDriverLicense(rentalCarRequest.getDriverInfo());
+		float driverScore = driverHistoryService.getDriverScore(rentalCarRequest.getDriverInfo());
 	    if (driverScore < DRIVER_BASE_SCORE) {
 	        throw new DriverException(String.format(ERROR_DRIVER_SCORE_TOO_LOW, rentalCarRequest.getDriverInfo().getStateCode(), 
 	        		driverScore, DRIVER_BASE_SCORE));
@@ -82,7 +85,7 @@ public class DefaultRentalService implements RentalService {
 	    // Identify car based on preferences and availability and maximum miles out for agencies.
 	    RentalCar identifiedCar = carLocatorService.findRentalCar(rentalCarRequest, RENTAL_SEARCH_MAX_MILES);
 	    contingencies.setIdentifiedCar(identifiedCar);	    
-	    // Create a rental contract from the rental request and verified contnigent data.
+	    // Create a rental contract from the rental request and verified contingent data.
 	    RentalContract rentalContract = rentalAgreementService.createContract(rentalCarRequest, contingencies);
 	    return rentalContract;	    
 	}
@@ -111,8 +114,29 @@ public class DefaultRentalService implements RentalService {
 			throw new RentalValidationException(String.format(ERROR_MIN_DEPOSIT_NOT_MET, rentalCarRequest.getDepositAmount(), ERROR_MIN_DEPOSIT_NOT_MET));
 		}
 		// Check name fields.
-		if (StringUtils.isBlank(rentalCarRequest.getDriverInfo().getFirstName())) {
+		if (StringUtils.isBlank(rentalCarRequest.getDriverInfo().getFirstName()) || 
+			StringUtils.isBlank(rentalCarRequest.getDriverInfo().getLastName())) {
 			throw new RentalValidationException(ERROR_NAME_FIELDS_REQUIRED);
+		}
+		// Driver license required.
+		if (StringUtils.isBlank(rentalCarRequest.getDriverInfo().getDriverLicenseNumber())) {
+			throw new RentalValidationException(ERROR_DRIVER_LICENSE_REQUIRED);
+		}
+		// Any driver provided insurance must have an active policy.
+		InsuranceBinder driverProvidedInsurance = rentalCarRequest.getDriverProvidedInsurance();
+		if ((driverProvidedInsurance != null) && (driverProvidedInsurance.getStartDateCoverage() != null) && (driverProvidedInsurance.getEndDateCoverage() != null)) {
+			Date now = new Date();
+			boolean policyInEffect = now.after(driverProvidedInsurance.getStartDateCoverage()) && now.before(driverProvidedInsurance.getEndDateCoverage());
+			if (!policyInEffect) {
+				throw new RentalValidationException(String.format(ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT, driverProvidedInsurance.getStartDateCoverage().toString(),
+						driverProvidedInsurance.getEndDateCoverage().toString()));
+			}
+		}
+		// Either make+model or vehicle class must be specified, to identify a car.
+		boolean carTypeParamsOk = (StringUtils.isNotBlank(rentalCarRequest.getMake()) && StringUtils.isNotBlank(rentalCarRequest.getModel())) ||
+									(rentalCarRequest.getVehicleClass() != VehicleClass.UNKNOWN);
+		if (!carTypeParamsOk) {
+			throw new RentalValidationException(String.format(ERROR_CAR_REQUEST_PARMS_MISSING, VehicleClass.getValues()));
 		}
 	}
 }

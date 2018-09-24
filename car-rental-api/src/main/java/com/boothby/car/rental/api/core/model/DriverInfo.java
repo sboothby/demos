@@ -7,7 +7,8 @@ public class DriverInfo {
 	private String firstName;
 	private String lastName;
 	private Date dob;
-	private String stateCode;	// for DMV access
+	private String stateCode;			// for DMV access
+	private String driverLicenseNumber;	// for DMV access
 
 	public String getFirstName() {
 		return firstName;
@@ -39,5 +40,13 @@ public class DriverInfo {
 
 	public void setStateCode(String stateCode) {
 		this.stateCode = stateCode;
+	}
+
+	public String getDriverLicenseNumber() {
+		return driverLicenseNumber;
+	}
+
+	public void setDriverLicenseNumber(String driverLicenseNumber) {
+		this.driverLicenseNumber = driverLicenseNumber;
 	}
 }
