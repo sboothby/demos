@@ -79,7 +79,8 @@ public class InsuranceBinder {
 	
 	public boolean isActivePolicy() {
 		Date now = new Date();
-		boolean policyInEffect = now.after(startDateCoverage) && now.before(endDateCoverage);
+		boolean policyInEffect = (startDateCoverage != null) && now.after(startDateCoverage) 
+				&& (endDateCoverage != null) && now.before(endDateCoverage);
 		return policyInEffect;
 	}
 }

@@ -34,7 +34,7 @@ public class DefaultRentalService implements RentalService {
 	private static final String ERROR_DRIVER_SCORE_TOO_LOW = "Driver DMV score obtained from state (%s) was too low (%3.2f), and does not meet minimum score (%3.2f)!";
 	private static final String ERROR_NAME_FIELDS_REQUIRED = "All name fields required!";
 	private static final String ERROR_DRIVER_LICENSE_REQUIRED = "Valid state driver license number is required!";
-	private static final String ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT = "Driver provided insurance is not in effect for the dates given (from: %s, to: %s)!";
+	private static final String ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT = "Driver provided insurance is not in effect for the dates given!";
 	private static final String ERROR_CAR_REQUEST_PARMS_MISSING = "Must specify make/model or vehicle class (%s)!";
 	
 	private static final float DRIVER_BASE_SCORE = 50.0f;
@@ -124,11 +124,8 @@ public class DefaultRentalService implements RentalService {
 		}
 		// Any driver provided insurance must have an active policy.
 		InsuranceBinder driverProvidedInsurance = rentalCarRequest.getDriverProvidedInsurance();
-		if ((driverProvidedInsurance != null) && (driverProvidedInsurance.getStartDateCoverage() != null) && (driverProvidedInsurance.getEndDateCoverage() != null)) {
-			if (!driverProvidedInsurance.isActivePolicy()) {
-				throw new RentalValidationException(String.format(ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT, driverProvidedInsurance.getStartDateCoverage().toString(),
-						driverProvidedInsurance.getEndDateCoverage().toString()));
-			}
+		if ((driverProvidedInsurance != null) && !driverProvidedInsurance.isActivePolicy()) {
+			throw new RentalValidationException(ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT);
 		}
 		// Either make+model or vehicle class must be specified, to identify a car.
 		boolean carTypeParamsOk = (StringUtils.isNotBlank(rentalCarRequest.getMake()) && StringUtils.isNotBlank(rentalCarRequest.getModel())) ||
