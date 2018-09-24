@@ -125,9 +125,7 @@ public class DefaultRentalService implements RentalService {
 		// Any driver provided insurance must have an active policy.
 		InsuranceBinder driverProvidedInsurance = rentalCarRequest.getDriverProvidedInsurance();
 		if ((driverProvidedInsurance != null) && (driverProvidedInsurance.getStartDateCoverage() != null) && (driverProvidedInsurance.getEndDateCoverage() != null)) {
-			Date now = new Date();
-			boolean policyInEffect = now.after(driverProvidedInsurance.getStartDateCoverage()) && now.before(driverProvidedInsurance.getEndDateCoverage());
-			if (!policyInEffect) {
+			if (!driverProvidedInsurance.isActivePolicy()) {
 				throw new RentalValidationException(String.format(ERROR_DRIVER_PROVIDED_INSURANCE_NOT_IN_EFFECT, driverProvidedInsurance.getStartDateCoverage().toString(),
 						driverProvidedInsurance.getEndDateCoverage().toString()));
 			}

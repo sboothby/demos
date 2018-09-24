@@ -76,4 +76,10 @@ public class InsuranceBinder {
 	public void setCollisionAmount(float collisionAmount) {
 		this.collisionAmount = collisionAmount;
 	}
+	
+	public boolean isActivePolicy() {
+		Date now = new Date();
+		boolean policyInEffect = now.after(startDateCoverage) && now.before(endDateCoverage);
+		return policyInEffect;
+	}
 }
