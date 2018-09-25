@@ -16,6 +16,7 @@ import com.boothby.car.rental.api.core.RentalService;
 import com.boothby.car.rental.api.core.exception.CarNotFoundException;
 import com.boothby.car.rental.api.core.exception.DriverException;
 import com.boothby.car.rental.api.core.exception.InsuranceException;
+import com.boothby.car.rental.api.core.exception.RentalContractException;
 import com.boothby.car.rental.api.core.exception.RentalValidationException;
 import com.boothby.car.rental.api.core.model.RentalCar;
 import com.boothby.car.rental.api.core.model.InsuranceBinder;
@@ -58,7 +59,7 @@ public class DefaultRentalService implements RentalService {
 
 	@Override
 	public RentalContract rentCar(RentalCarRequest rentalCarRequest)
-			throws RentalValidationException, DriverException, CarNotFoundException, InsuranceException {
+			throws RentalValidationException, DriverException, CarNotFoundException, InsuranceException, RentalContractException {
 		// Validate the request, if anything is invalid, terminate processing with exception.
 		validateRentalRequest(rentalCarRequest);
 		// Resolve all contingencies required for the contract to be approved and created.

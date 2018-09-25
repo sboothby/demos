@@ -17,7 +17,7 @@ public interface DriverHistoryService {
 	 * Calculates score for car rental, at the state DMV.
 	 * @param driverInfo all driver details
 	 * @return score of driver history
-	 * @throws DriverException
+	 * @throws DriverException thrown if can't obtain the driver score from state DMV
 	 */
 	float getDriverScore(DriverInfo driverInfo) throws DriverException;
 }

@@ -1,6 +1,6 @@
 package com.boothby.car.rental.api.core;
 
-import com.boothby.car.rental.api.core.exception.RentalValidationException;
+import com.boothby.car.rental.api.core.exception.RentalContractException;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;
 import com.boothby.car.rental.api.core.model.RentalContingencies;
 import com.boothby.car.rental.api.core.model.RentalContract;
@@ -12,7 +12,7 @@ public interface RentalAgreementService {
 	 * @param rentalCarRequest all details for the rental, including driver info
 	 * @param contingencies items that need verification and follow-up for the contract to be approved
 	 * @return valid contract for rental
-	 * @throws RentalValidationException thrown when finding any problems with the request during validation
+	 * @throws RentalContractException thrown when finding any problems with the request or contingencies during contract creation
 	 */
-	RentalContract createContract(RentalCarRequest rentalCarRequest, RentalContingencies contingencies) throws RentalValidationException;
+	RentalContract createContract(RentalCarRequest rentalCarRequest, RentalContingencies contingencies) throws RentalContractException;
 }
