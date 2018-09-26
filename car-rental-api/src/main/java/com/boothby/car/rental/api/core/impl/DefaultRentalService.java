@@ -71,7 +71,7 @@ public class DefaultRentalService implements RentalService {
 			contingencies.setInsurance(defaultInsurance);
 		} else {
 			// Validate existing insurance provided by the driver.
-			insuranceBinderService.validateDriverInsurance(rentalCarRequest);
+			insuranceBinderService.checkDriverProvidedInsuranceCoverage(rentalCarRequest);
 			contingencies.setInsurance(rentalCarRequest.getDriverProvidedInsurance());
 		}
 	    // Check driver/DMV history.

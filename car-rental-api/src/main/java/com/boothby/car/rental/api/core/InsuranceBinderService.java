@@ -15,9 +15,9 @@ public interface InsuranceBinderService {
 	InsuranceBinder getDefaultInsurance(RentalCarRequest rentalCarRequest) throws InsuranceException;
 	
 	/**
-	 * Confirm existing insurance on the request.
+	 * Confirm existing driver insurance has adequate coverage for the rental request.
 	 * @param rentalCarRequest
-	 * @throws InsuranceException thrown when driver existing insurance is invalid for the rental terms
+	 * @throws InsuranceException thrown when driver-provided insurance is invalid for the rental terms
 	 */
-	void validateDriverInsurance(RentalCarRequest rentalCarRequest) throws InsuranceException;
+	void checkDriverProvidedInsuranceCoverage(RentalCarRequest rentalCarRequest) throws InsuranceException;
 }

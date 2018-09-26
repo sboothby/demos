@@ -17,7 +17,7 @@ public class DefaultInsuranceBinderService implements InsuranceBinderService {
 	}
 
 	@Override
-	public void validateDriverInsurance(RentalCarRequest rentalCarRequest) throws InsuranceException {
+	public void checkDriverProvidedInsuranceCoverage(RentalCarRequest rentalCarRequest) throws InsuranceException {
 		// TODO Auto-generated method stub
 
 	}
