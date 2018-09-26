@@ -17,17 +17,13 @@ import com.boothby.car.rental.api.core.model.VehicleClass;
 public class RentalModelBuilder {
 
 	private static final String SDF_FORMAT = "MM/dd/yyyy";
-	private DateFormat df;
+	private static DateFormat df = new SimpleDateFormat(SDF_FORMAT);
 	
 	private RentalCarRequest request;
 	private InsuranceBinder defaultInsurance;
 	private RentalCar rentalCar;
 	private RentalContract rentalContract;
 	private RentalContingencies contingencies;
-	
-	public RentalModelBuilder() {
-		this.df = new SimpleDateFormat(SDF_FORMAT);
-	}
 	
 	public RentalModelBuilder buildRentalCarRequestByClass(VehicleClass vehicleClass, int durationDays, float depositAmount, int searchMilesOut) {
 		request = new RentalCarRequest();
@@ -147,7 +143,7 @@ public class RentalModelBuilder {
 		return contingencies;
 	}
 	
-	private Date parseDate(String dateStr) {
+	public static Date parseDate(String dateStr) {
 		Date date = null;
 		try {
 			date = df.parse(dateStr);

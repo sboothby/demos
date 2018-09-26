@@ -112,7 +112,7 @@ public class DefaultRentalService implements RentalService {
 		}
 		// Must meet minimum deposit.
 		if (rentalCarRequest.getDepositAmount() < RENTAL_MIN_DEPOSIT) {
-			throw new RentalValidationException(String.format(ERROR_MIN_DEPOSIT_NOT_MET, rentalCarRequest.getDepositAmount(), ERROR_MIN_DEPOSIT_NOT_MET));
+			throw new RentalValidationException(String.format(ERROR_MIN_DEPOSIT_NOT_MET, rentalCarRequest.getDepositAmount(), RENTAL_MIN_DEPOSIT));
 		}
 		// Check name fields.
 		if (StringUtils.isBlank(rentalCarRequest.getDriverInfo().getFirstName()) || 
