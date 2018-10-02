@@ -10,6 +10,7 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import com.boothby.car.rental.api.core.CarLocatorService;
 import com.boothby.car.rental.api.core.DriverHistoryService;
@@ -99,6 +100,8 @@ public class DefaultRentalServiceTest {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(testContingencies.getDriverScore());
 		when(carLocatorService.findRentalCar(any(RentalCarRequest.class), anyInt())).thenReturn(testIdentifiedCar);
 		when(rentalAgreementService.createContract(any(RentalCarRequest.class), any(RentalContingencies.class))).thenReturn(testContract);
+		// Used for dependent bean call verification of parameter.
+		ArgumentCaptor<RentalCarRequest> captor = ArgumentCaptor.forClass(RentalCarRequest.class);
 		// Invoke the class method under test, obtaining a contract, that we'll subsequently verify is correct.
 		RentalContract rentalContract = rentalService.rentCar(testRentalCarRequest);
 		// A contract should have been returned.
@@ -110,7 +113,10 @@ public class DefaultRentalServiceTest {
 		assertNotNull(rentalContract.getStartDate());
 		assertTrue(isToday(rentalContract.getStartDate()));
 		// Default insurance should have been obtained, since driver provided insurance was not set.
-		verify(insuranceBinderService, times(1)).getDefaultInsurance(any(RentalCarRequest.class));
+		verify(insuranceBinderService, times(1)).getDefaultInsurance(captor.capture());
+		// Check that the object passed to dependent bean was what we expected.
+		RentalCarRequest actualRentalCarRequest = captor.getValue();
+		assertEquals(testRentalCarRequest, actualRentalCarRequest);
 		// All contingencies for getting the rental contract should have been met, and the returned contingencies should
 		// be the same instance as the test that was mocked.
 		assertNotNull(rentalContract.getContingencies());
@@ -130,6 +136,8 @@ public class DefaultRentalServiceTest {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(testContingencies.getDriverScore());
 		when(carLocatorService.findRentalCar(any(RentalCarRequest.class), anyInt())).thenReturn(testIdentifiedCar);
 		when(rentalAgreementService.createContract(any(RentalCarRequest.class), any(RentalContingencies.class))).thenReturn(testContract);
+		// Used for dependent bean call verification of parameter.
+		ArgumentCaptor<RentalCarRequest> captor = ArgumentCaptor.forClass(RentalCarRequest.class);
 		// Invoke the class method under test, obtaining a contract, that we'll subsequently verify is correct.
 		RentalContract rentalContract = rentalService.rentCar(testRentalCarRequest);
 		// A contract should have been returned.
@@ -141,7 +149,10 @@ public class DefaultRentalServiceTest {
 		assertNotNull(rentalContract.getStartDate());
 		assertTrue(isToday(rentalContract.getStartDate()));
 		// Driver provider insurance should have been validated OK.
-		verify(insuranceBinderService, times(1)).checkDriverProvidedInsuranceCoverage(any(RentalCarRequest.class));
+		verify(insuranceBinderService, times(1)).checkDriverProvidedInsuranceCoverage(captor.capture());
+		// Check that the object passed to dependent bean was what we expected.
+		RentalCarRequest actualRentalCarRequest = captor.getValue();
+		assertEquals(testRentalCarRequest, actualRentalCarRequest);		
 		// All contingencies for getting the rental contract should have been met, and the returned contingencies should
 		// be the same instance as the test that was mocked.
 		assertNotNull(rentalContract.getContingencies());
@@ -224,19 +235,22 @@ public class DefaultRentalServiceTest {
 
 	@Test(expected = InsuranceException.class)
 	public void should_ThrowException_When_DriverProvidedInsuranceInsufficientCoverage() throws Exception {
-		doThrow(new InsuranceException("Driver provided insurance was deemed insufficient coverage by rental agent insurance carrier!")).when(insuranceBinderService).checkDriverProvidedInsuranceCoverage(any(RentalCarRequest.class));
+		doThrow(new InsuranceException("Driver provided insurance was deemed insufficient coverage by rental agent insurance carrier!"))
+			.when(insuranceBinderService).checkDriverProvidedInsuranceCoverage(any(RentalCarRequest.class));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = DriverException.class)
 	public void should_ThrowException_When_DriverLicenseNotVerified() throws Exception {
-		doThrow(new DriverException("Unable to verify customer driver license with state DMV!")).when(driverHistoryService).verifyDriverLicense(any(DriverInfo.class));
+		doThrow(new DriverException("Unable to verify customer driver license with state DMV!"))
+			.when(driverHistoryService).verifyDriverLicense(any(DriverInfo.class));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = DriverException.class)
 	public void should_ThrowException_When_DriverScoreNotObtainedFromDMV() throws Exception {
-		doThrow(new DriverException("Error obtaining driver score from state DMV! System down!")).when(driverHistoryService).getDriverScore(any(DriverInfo.class));
+		doThrow(new DriverException("Error obtaining driver score from state DMV! System down!"))
+			.when(driverHistoryService).getDriverScore(any(DriverInfo.class));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 
@@ -249,14 +263,16 @@ public class DefaultRentalServiceTest {
 	@Test(expected = CarNotFoundException.class)
 	public void should_ThrowException_When_RentalCarNotFound() throws Exception {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(85.0f);
-		doThrow(new CarNotFoundException("Car not found with customer specs in search radius!")).when(carLocatorService).findRentalCar(any(RentalCarRequest.class), anyInt());
+		doThrow(new CarNotFoundException("Car not found with customer specs in search radius!"))
+			.when(carLocatorService).findRentalCar(any(RentalCarRequest.class), anyInt());
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalContractException.class)
 	public void should_ThrowException_When_UnableToCreateContract() throws Exception {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(85.0f);
-		doThrow(new RentalContractException("Error creating rental agreeement! System down!")).when(rentalAgreementService).createContract(any(RentalCarRequest.class), any(RentalContingencies.class));
+		doThrow(new RentalContractException("Error creating rental agreement! System down!"))
+			.when(rentalAgreementService).createContract(any(RentalCarRequest.class), any(RentalContingencies.class));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
