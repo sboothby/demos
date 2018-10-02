@@ -122,6 +122,8 @@ public class DefaultRentalServiceTest {
 		assertNotNull(rentalContract.getContingencies());
 		assertTrue(rentalContract.getContingencies().contingenciesMet());
 		assertEquals(rentalContract.getContingencies(), testContingencies);
+		// Confirm contract was generated with identifier.
+		assertEquals("Rental contract generated with valid id #", testContract.getContractId(), rentalContract.getContractId());	
 	}
 	
 	/**
@@ -158,6 +160,8 @@ public class DefaultRentalServiceTest {
 		assertNotNull(rentalContract.getContingencies());
 		assertTrue(rentalContract.getContingencies().contingenciesMet());
 		assertEquals(rentalContract.getContingencies(), testContingencies);
+		// Confirm contract was generated with identifier.
+		assertEquals("Rental contract generated with valid id #", testContract.getContractId(), rentalContract.getContractId());	
 	}
 	
 	/*************************************************************************
