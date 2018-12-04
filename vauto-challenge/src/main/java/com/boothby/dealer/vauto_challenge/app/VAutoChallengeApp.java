@@ -50,7 +50,7 @@ public class VAutoChallengeApp {
 	}
 
 	private void process() {
-		// Get new dataset id
+		// Get new dataset id.
 		DataSetApi datasetApi = new DataSetApi();
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = "";
@@ -60,24 +60,21 @@ public class VAutoChallengeApp {
 		} catch (ApiException e) {
 			logger.info(e);
 		}
-		// Keep track of vehicle/dealer to retrieve each only once.
-		Map<Integer, VehicleResponse> vehicleMap = new HashMap<Integer, VehicleResponse>();
-		Map<Integer, DealersResponse> dealerMap = new HashMap<Integer, DealersResponse>();
-		// Retrieve all vehicles and dealers for the dataset
-		VehiclesApi vehiclesApi = new VehiclesApi();
-		VehicleIdsResponse vehicleIdsResponse = null;
-		List<Integer> vehicleIdList = null;
 		if (StringUtils.isNotEmpty(datasetId)) {
 			try {
-				vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
-				vehicleIdList = vehicleIdsResponse.getVehicleIds();
-				// Asynchronously, get all vehicles, each only once.
+				// Get all the vehicle identifiers.
+				VehiclesApi vehiclesApi = new VehiclesApi();
+				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
+				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
+				// Asynchronously, get all vehicles details, each only once.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.stream().distinct().collect(Collectors.toList());
 				List<Future<VehicleResponse>> vehicleResponseFutureList = new ArrayList<Future<VehicleResponse>>();
 				for (Integer vehicleId : uniqueVehicleIdList) {
 					Future<VehicleResponse> vehicleResponseFuture = executor.submit(new VehicleTask(datasetId, vehicleId));
 					vehicleResponseFutureList.add(vehicleResponseFuture);
 				}
+				// Keep track of vehicles.
+				Map<Integer, VehicleResponse> vehicleMap = new HashMap<Integer, VehicleResponse>();
 				for (Future<VehicleResponse> vehicleResponseFuture : vehicleResponseFutureList) {
 					try {
 						VehicleResponse vehicleResponse = vehicleResponseFuture.get();
@@ -96,6 +93,8 @@ public class VAutoChallengeApp {
 					Future<DealersResponse> futureDealersResponse = executor.submit(new DealersTask(datasetId, uniqueDealerId));
 					dealersResponseFutureList.add(futureDealersResponse);
 				}
+				// Keep track of dealers.
+				Map<Integer, DealersResponse> dealerMap = new HashMap<Integer, DealersResponse>();
 				for (Future<DealersResponse> futureDealersResponse : dealersResponseFutureList) {
 					DealersResponse dealersResponse;
 					try {
@@ -105,7 +104,7 @@ public class VAutoChallengeApp {
 						logger.error(e);
 					}
 				}
-				// Group vehicles with their dealers
+				// Group vehicles with their dealers.
 				Map<DealersResponse, List<VehicleResponse>> dealerVehiclesMap = new HashMap<DealersResponse, List<VehicleResponse>>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
 					DealersResponse dealersResponse = dealerMap.get(vehicleEntry.getValue().getDealerId());
@@ -118,7 +117,7 @@ public class VAutoChallengeApp {
 					}
 					dealerVehicleList.add(vehicleEntry.getValue());
 				}
-				// Create Answer, which groups each dealer to all it's vehicles
+				// Create Answer, which groups each dealer to all it's vehicles.
 				Answer answer = null;
 				if (dealerVehiclesMap.size() > 0) {
 					answer = new Answer();
@@ -130,11 +129,11 @@ public class VAutoChallengeApp {
 							VehicleAnswer vehicleAnswer = getVehicleAnswer(vehicleResponse);
 							vehicleAnswerList.add(vehicleAnswer);
 						}
-						DealerAnswer dealerAnswer = getDealerAnswer(vehicleAnswerList, dealersResponse.getDealerId(), dealersResponse.getName());
+						DealerAnswer dealerAnswer = getDealerAnswer(dealersResponse, vehicleAnswerList);
 						answer.addDealersItem(dealerAnswer);
 					}
 				}
-				// Post to answer endpoint
+				// Post to answer endpoint.
 				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elasped time (sec): %3.2f seconds",
@@ -146,6 +145,11 @@ public class VAutoChallengeApp {
 		}
 	}
 	
+	/**
+	 * Get a vehicle answer object from the API response.
+	 * @param vehicleResponse response from Vehicles API
+	 * @return vehicle answer with vehicle properties
+	 */
 	private VehicleAnswer getVehicleAnswer(VehicleResponse vehicleResponse) {
 		VehicleAnswer vehicleAnswer = new VehicleAnswer();
 		vehicleAnswer.setMake(vehicleResponse.getMake());
@@ -155,10 +159,16 @@ public class VAutoChallengeApp {
 		return vehicleAnswer;
 	}
 	
-	private DealerAnswer getDealerAnswer(final List<VehicleAnswer> vehicleAnswerList, int dealerId, String name) {
+	/**
+	 * Get a dealer answer object from the API response.
+	 * @param dealersResponse response from Dealers API
+	 * @param vehicleAnswerList vehicle answers list
+	 * @return dealer answer of grouped vehicles
+	 */
+	private DealerAnswer getDealerAnswer(DealersResponse dealersResponse, final List<VehicleAnswer> vehicleAnswerList) {
 		DealerAnswer dealerAnswer = new DealerAnswer();
-		dealerAnswer.setDealerId(dealerId);
-		dealerAnswer.setName(name);
+		dealerAnswer.setDealerId(dealersResponse.getDealerId());
+		dealerAnswer.setName(dealersResponse.getName());
 		dealerAnswer.setVehicles(vehicleAnswerList);
 		return dealerAnswer;
 	}
