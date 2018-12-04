@@ -104,35 +104,26 @@ public class VAutoChallengeApp {
 						logger.error(e);
 					}
 				}
-				// Group vehicles with their dealers.
-				Map<DealersResponse, List<VehicleResponse>> dealerVehiclesMap = new HashMap<DealersResponse, List<VehicleResponse>>();
-				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
-					DealersResponse dealersResponse = dealerMap.get(vehicleEntry.getValue().getDealerId());
-					List<VehicleResponse> dealerVehicleList = null;
-					if (dealerVehiclesMap.containsKey(dealersResponse)) {
-						dealerVehicleList = dealerVehiclesMap.get(dealersResponse);
-					} else {
-						dealerVehicleList = new ArrayList<VehicleResponse>();
-						dealerVehiclesMap.put(dealersResponse, dealerVehicleList);
-					}
-					dealerVehicleList.add(vehicleEntry.getValue());
-				}
 				// Create Answer, which groups each dealer to all it's vehicles.
-				Answer answer = null;
-				if (dealerVehiclesMap.size() > 0) {
-					answer = new Answer();
-					for (Entry<DealersResponse, List<VehicleResponse>> dealerVehicleEntry : dealerVehiclesMap.entrySet()) {
-						DealersResponse dealersResponse = dealerVehicleEntry.getKey();
-						List<VehicleResponse> vehicleResponseList = dealerVehicleEntry.getValue();
-						List<VehicleAnswer> vehicleAnswerList = new ArrayList<VehicleAnswer>();
-						for (VehicleResponse vehicleResponse : vehicleResponseList) {
-							VehicleAnswer vehicleAnswer = getVehicleAnswer(vehicleResponse);
-							vehicleAnswerList.add(vehicleAnswer);
-						}
-						DealerAnswer dealerAnswer = getDealerAnswer(dealersResponse, vehicleAnswerList);
-						answer.addDealersItem(dealerAnswer);
+				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
+				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
+					VehicleAnswer vehicleAnswer = getVehicleAnswer(vehicleEntry.getValue());
+					DealersResponse dealerForVehicle = dealerMap.get(vehicleEntry.getValue().getDealerId());
+					DealerAnswer dealerAnswer = null;
+					if (dealerAnswerMap.containsKey(dealerForVehicle.getDealerId())) {
+						dealerAnswer = dealerAnswerMap.get(dealerForVehicle.getDealerId());
+					} else {
+						dealerAnswer = new DealerAnswer();
+						dealerAnswer.setDealerId(dealerForVehicle.getDealerId());
+						dealerAnswer.setName(dealerForVehicle.getName());
+						dealerAnswerMap.put(dealerForVehicle.getDealerId(), dealerAnswer);
 					}
+					dealerAnswer.addVehiclesItem(vehicleAnswer);
 				}
+				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values().stream().collect(Collectors.toList());
+				Answer answer = new Answer();
+				answer.setDealers(dealerAnswerList);
+				
 				// Post to answer endpoint.
 				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
