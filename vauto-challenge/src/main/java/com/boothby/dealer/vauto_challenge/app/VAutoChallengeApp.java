@@ -7,10 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +20,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.boothby.dealer.vauto_challenge.client.api.DataSetApi;
+import com.boothby.dealer.vauto_challenge.client.api.DealersApi;
 import com.boothby.dealer.vauto_challenge.client.api.VehiclesApi;
 import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.ApiException;
 import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.Answer;
@@ -53,7 +56,7 @@ public class VAutoChallengeApp {
 		// Get new dataset id.
 		DataSetApi datasetApi = new DataSetApi();
 		DatasetIdResponse dsIdResponse = null;
-		String datasetId = "";
+		String datasetId = null;
 		try {
 			dsIdResponse = datasetApi.dataSetGetDataSetId();
 			datasetId = dsIdResponse.getDatasetId();
@@ -69,8 +72,22 @@ public class VAutoChallengeApp {
 				// Asynchronously, get all vehicles details, each only once.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.stream().distinct().collect(Collectors.toList());
 				List<Future<VehicleResponse>> vehicleResponseFutureList = new ArrayList<Future<VehicleResponse>>();
-				for (Integer vehicleId : uniqueVehicleIdList) {
-					Future<VehicleResponse> vehicleResponseFuture = executor.submit(new VehicleTask(datasetId, vehicleId));
+				final String finalDatasetId = datasetId;
+				for (Integer uniqueVehicleId : uniqueVehicleIdList) {
+					// Note: trying out CompletableFuture instead of the VehicleTask (Callable) approach.
+					CompletableFuture<VehicleResponse> vehicleResponseFuture = 
+						CompletableFuture.supplyAsync(new Supplier<VehicleResponse>() {
+							@Override
+							public VehicleResponse get() {
+								VehicleResponse vehicleResponse = null;
+								try {
+									vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, uniqueVehicleId);
+								} catch (ApiException e) {
+									e.printStackTrace();
+								}
+								return vehicleResponse;
+							}
+						}, executor);
 					vehicleResponseFutureList.add(vehicleResponseFuture);
 				}
 				// Keep track of vehicles.
@@ -89,8 +106,22 @@ public class VAutoChallengeApp {
 					uniqueDealerIdSet.add(entry.getValue().getDealerId());
 				}
 				List<Future<DealersResponse>> dealersResponseFutureList = new ArrayList<Future<DealersResponse>>();
+				DealersApi dealersApi = new DealersApi();
 				for (Integer uniqueDealerId : uniqueDealerIdSet) {
-					Future<DealersResponse> futureDealersResponse = executor.submit(new DealersTask(datasetId, uniqueDealerId));
+					// Note: trying out CompletableFuture instead of the DealersTask (Callable) approach.
+					CompletableFuture<DealersResponse> futureDealersResponse = 
+						CompletableFuture.supplyAsync(new Supplier<DealersResponse>() {
+							@Override
+							public DealersResponse get() {
+								DealersResponse dealersResponse = null;
+								try {
+									dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, uniqueDealerId);
+								} catch (ApiException e) {
+									e.printStackTrace();
+								}
+								return dealersResponse;
+							}
+						}, executor);
 					dealersResponseFutureList.add(futureDealersResponse);
 				}
 				// Keep track of dealers.
