@@ -91,6 +91,7 @@ public class VAutoChallengeApp {
 					vehicleResponseFutureList.add(vehicleResponseFuture);
 				}
 				// Keep track of vehicles.
+				//TODO - the Future.get will block on each API call; move this to parallelStream?
 				Map<Integer, VehicleResponse> vehicleMap = new HashMap<Integer, VehicleResponse>();
 				for (Future<VehicleResponse> vehicleResponseFuture : vehicleResponseFutureList) {
 					try {
@@ -125,6 +126,7 @@ public class VAutoChallengeApp {
 					dealersResponseFutureList.add(futureDealersResponse);
 				}
 				// Keep track of dealers.
+				//TODO - the Future.get will block on each API call; move this to parallelStream?
 				Map<Integer, DealersResponse> dealerMap = new HashMap<Integer, DealersResponse>();
 				for (Future<DealersResponse> futureDealersResponse : dealersResponseFutureList) {
 					DealersResponse dealersResponse;
