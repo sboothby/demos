@@ -99,10 +99,12 @@ public class VAutoChallengeApp {
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Get all vehicles details, each only once.
-				List<Integer> uniqueVehicleIdList = vehicleIdList.stream().distinct().collect(Collectors.toList());
+				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
+						.distinct()
+						.collect(Collectors.toList());
 				final String finalDatasetId = datasetId;
 				// Create each vehicle response task.
-				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.stream()
+				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.parallelStream()
 						.map(vehicleId -> new VehicleResponseTask(vehiclesApi, finalDatasetId, vehicleId))
 						.collect(Collectors.toList());
 				// Execute each vehicle response task in parallel, obtaining map of vehicle
@@ -112,12 +114,12 @@ public class VAutoChallengeApp {
 						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(), // map key
 																	 vehicleResponse -> vehicleResponse)); // map value
 				// Get all dealers, each only once.
-				List<Integer> uniqueDealerIdList = vehicleMap.entrySet().stream()
+				List<Integer> uniqueDealerIdList = vehicleMap.entrySet().parallelStream()
 						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
 						.collect(Collectors.toList());
 				// Create each dealer response task.
 				DealersApi dealersApi = new DealersApi();
-				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.stream()
+				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.parallelStream()
 						.map(dealerId -> new DealerResponseTask(dealersApi, finalDatasetId, dealerId))
 						.collect(Collectors.toList());
 				// Execute each dealer response task in parallel, obtaining map of dealers.
