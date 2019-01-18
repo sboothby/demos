@@ -26,26 +26,27 @@ import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.Veh
 public class VAutoChallengeApp {
 
 	private static Logger logger = LogManager.getLogger(VAutoChallengeApp.class);
-	
+
 	/**
- 		Create a program that retrieves a datasetID, retrieves all vehicles and dealers for that dataset, and successfully 
- 		posts to the answer endpoint. Each vehicle and dealer should be requested only once. You will receive a response 
- 		structure when you post to the answer endpoint that describes status and total elapsed time; your program should
- 		output this response.	  
+	 * Create a program that retrieves a datasetID, retrieves all vehicles and
+	 * dealers for that dataset, and successfully posts to the answer endpoint. Each
+	 * vehicle and dealer should be requested only once. You will receive a response
+	 * structure when you post to the answer endpoint that describes status and
+	 * total elapsed time; your program should output this response.
 	 */
-	
+
 	private class VehicleResponseTask {
-		
+
 		private VehiclesApi vehiclesApi;
 		private String datasetId;
 		private int vehicleId;
-		
+
 		public VehicleResponseTask(VehiclesApi vehiclesApi, String datasetId, int vehicleId) {
 			this.vehiclesApi = vehiclesApi;
 			this.datasetId = datasetId;
 			this.vehicleId = vehicleId;
 		}
-		
+
 		public VehicleResponse getVehicleResponse() {
 			VehicleResponse vehicleResponse = null;
 			try {
@@ -56,19 +57,19 @@ public class VAutoChallengeApp {
 			return vehicleResponse;
 		}
 	}
-	
+
 	private class DealerResponseTask {
-			
+
 		private DealersApi dealersApi;
 		private String datasetId;
 		private int dealerId;
-		
+
 		public DealerResponseTask(DealersApi dealersApi, String datasetId, int dealerId) {
 			this.dealersApi = dealersApi;
 			this.datasetId = datasetId;
 			this.dealerId = dealerId;
 		}
-		
+
 		public DealersResponse getDealerResponse() {
 			DealersResponse dealersResponse = null;
 			try {
@@ -78,8 +79,8 @@ public class VAutoChallengeApp {
 			}
 			return dealersResponse;
 		}
-	}	
-	
+	}
+
 	private void process() {
 		// Get new dataset id.
 		DataSetApi datasetApi = new DataSetApi();
@@ -98,23 +99,21 @@ public class VAutoChallengeApp {
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Get all vehicles details, each only once.
-				List<Integer> uniqueVehicleIdList = vehicleIdList.stream()
-						.distinct()
-						.collect(Collectors.toList());
+				List<Integer> uniqueVehicleIdList = vehicleIdList.stream().distinct().collect(Collectors.toList());
 				final String finalDatasetId = datasetId;
 				// Create each vehicle response task.
 				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.stream()
 						.map(vehicleId -> new VehicleResponseTask(vehiclesApi, finalDatasetId, vehicleId))
 						.collect(Collectors.toList());
-				// Execute each vehicle response task in parallel, obtaining map of vehicle details.
+				// Execute each vehicle response task in parallel, obtaining map of vehicle
+				// details.
 				Map<Integer, VehicleResponse> vehicleMap = vehicleDetailTasks.parallelStream()
 						.map(VehicleResponseTask::getVehicleResponse)
-						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(),		// map key 
-																	 vehicleResponse -> vehicleResponse));	// map value
+						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(), // map key
+																	 vehicleResponse -> vehicleResponse)); // map value
 				// Get all dealers, each only once.
 				List<Integer> uniqueDealerIdList = vehicleMap.entrySet().stream()
-						.map(entry -> new Integer(entry.getValue().getDealerId()))
-						.distinct()
+						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
 						.collect(Collectors.toList());
 				// Create each dealer response task.
 				DealersApi dealersApi = new DealersApi();
@@ -124,8 +123,8 @@ public class VAutoChallengeApp {
 				// Execute each dealer response task in parallel, obtaining map of dealers.
 				Map<Integer, DealersResponse> dealerMap = dealerResponseTasks.parallelStream()
 						.map(DealerResponseTask::getDealerResponse)
-						.collect(Collectors.toMap(dealerResponse -> dealerResponse.getDealerId(),		// map key
-																	dealerResponse -> dealerResponse));	// map value
+						.collect(Collectors.toMap(dealerResponse -> dealerResponse.getDealerId(), // map key
+																	dealerResponse -> dealerResponse)); // map value
 				// Create Answer, which groups each dealer to all it's vehicles.
 				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
@@ -140,25 +139,25 @@ public class VAutoChallengeApp {
 					}
 					dealerAnswer.addVehiclesItem(vehicleAnswer);
 				}
-				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values()
-						.stream()
-						.collect(Collectors.toList());
+				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values().stream().collect(Collectors.toList());
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
 				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elasped time (sec): %3.2f seconds",
-					answerResponse.getMessage(), (float)answerResponse.getTotalMilliseconds()/1000.0f));
+						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
 			}
 		}
 	}
-	
+
 	/**
 	 * Get a vehicle answer object from the API response.
-	 * @param vehicleResponse response from Vehicles API
+	 * 
+	 * @param vehicleResponse
+	 *            response from Vehicles API
 	 * @return vehicle answer with vehicle properties
 	 */
 	private VehicleAnswer getVehicleAnswer(VehicleResponse vehicleResponse) {
@@ -169,11 +168,14 @@ public class VAutoChallengeApp {
 		vehicleAnswer.setYear(vehicleResponse.getYear());
 		return vehicleAnswer;
 	}
-	
+
 	/**
 	 * Get a dealer answer object from the API response.
-	 * @param dealersResponse response from Dealers API
-	 * @param vehicleAnswerList vehicle answers list
+	 * 
+	 * @param dealersResponse
+	 *            response from Dealers API
+	 * @param vehicleAnswerList
+	 *            vehicle answers list
 	 */
 	private DealerAnswer getDealerAnswer(DealersResponse dealersResponse) {
 		DealerAnswer dealerAnswer = new DealerAnswer();
@@ -181,7 +183,7 @@ public class VAutoChallengeApp {
 		dealerAnswer.setName(dealersResponse.getName());
 		return dealerAnswer;
 	}
-	
+
 	public static void main(String[] args) {
 		VAutoChallengeApp app = new VAutoChallengeApp();
 		app.process();
