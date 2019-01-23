@@ -23,9 +23,9 @@ import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.Veh
 import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.VehicleIdsResponse;
 import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.VehicleResponse;
 
-public class VAutoChallengeApp {
+public class VAutoChallengeApp_ParallelStream {
 
-	private static Logger logger = LogManager.getLogger(VAutoChallengeApp.class);
+	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_ParallelStream.class);
 
 	/**
 	 * Create a program that retrieves a datasetID, retrieves all vehicles and
@@ -147,7 +147,7 @@ public class VAutoChallengeApp {
 				// Post to answer endpoint.
 				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
-				logger.info(String.format("Status: %s, total elasped time (sec): %3.2f seconds",
+				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
@@ -187,7 +187,7 @@ public class VAutoChallengeApp {
 	}
 
 	public static void main(String[] args) {
-		VAutoChallengeApp app = new VAutoChallengeApp();
+		VAutoChallengeApp_ParallelStream app = new VAutoChallengeApp_ParallelStream();
 		app.process();
 	}
 }
