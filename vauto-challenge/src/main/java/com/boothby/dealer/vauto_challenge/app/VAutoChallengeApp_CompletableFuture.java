@@ -32,7 +32,7 @@ import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.Veh
 
 public class VAutoChallengeApp_CompletableFuture {
 
-	private static final Integer NUM_EXECUTOR_THREADS = 20;
+	private static final Integer MAX_EXECUTOR_THREADS = 10;
 	
 	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_CompletableFuture.class);
 	
@@ -43,11 +43,6 @@ public class VAutoChallengeApp_CompletableFuture {
 	 * structure when you post to the answer endpoint that describes status and
 	 * total elapsed time; your program should output this response.
 	 */
-	private class VehicleDealerResponse {
-		VehicleResponse vehicleResponse;
-		DealersResponse dealersResponse;
-	}
-	
 	private void process() {
 		// Get new dataset id.
 		DataSetApi datasetApi = new DataSetApi();
@@ -60,17 +55,20 @@ public class VAutoChallengeApp_CompletableFuture {
 			logger.info(e);
 		}
 		if (StringUtils.isNotEmpty(datasetId)) {
-			//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-			ExecutorService executor = Executors.newFixedThreadPool(NUM_EXECUTOR_THREADS);
 			try {
 				// Get all the vehicle identifiers.
 				VehiclesApi vehiclesApi = new VehiclesApi();
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
-				// Get all vehicles details, each only once.
+				// Filter out duplicate vehicles, if any.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
 						.distinct()
 						.collect(Collectors.toList());
+				// Not CPU intensive, mostly network, so increase threads beyond number processors.
+				// Create an executor with thread pool based on the number of vehicles, but
+				// up to reasonable limit.
+				//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+				ExecutorService executor = Executors.newFixedThreadPool(Math.min(uniqueVehicleIdList.size(), MAX_EXECUTOR_THREADS));
 				final String finalDatasetId = datasetId;
 				// Create all the futures, which are async tasks to get vehicle and it's dealer.  Will make
 				// only one(1) call to APIs per vehicle and dealer.
@@ -83,30 +81,27 @@ public class VAutoChallengeApp_CompletableFuture {
 							CompletableFuture.supplyAsync(new Supplier<Boolean>() {
 								@Override
 								public Boolean get() {
-									//TODO check vehicleMap if response already gotten for that vehicle id, then won't need the unique vehicle id filtering, above.
 									VehicleResponse vehicleResponse = null;
 									try {
 										vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, vehicleId);
 										vehicleMap.put(vehicleId, vehicleResponse);
 									} catch (ApiException e) {
-										e.printStackTrace();
+										logger.error(e);
 									}
-									DealersResponse dealersResponse = null;
-									if (dealerMap.containsKey(vehicleResponse.getDealerId())) {
-										dealersResponse = dealerMap.get(vehicleResponse.getDealerId());
-									} else {
+									if (!dealerMap.containsKey(vehicleResponse.getDealerId())) {
 										try {
-											dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
+											DealersResponse dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
 											dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
 										} catch (ApiException e) {
-											e.printStackTrace();
+											logger.error(e);
 										}
 									}
 									return true;
 								}
-							}, executor)).collect(Collectors.toList());
+							}, executor))
+						.collect(Collectors.toList());
 				// Asynchronously execute all the tasks, and then we'll have the dealer and vehicle maps at that point,
-				// when each thread completes.  We're not interested in the boolean status return values of the future, just
+				// when each thread completes.  We're not interested in the boolean status return values of the futures, just
 				// the maps of vehicles and dealers, that were created in the asynchronous processing.
 				futureList.stream()
 					.map(CompletableFuture::join)
