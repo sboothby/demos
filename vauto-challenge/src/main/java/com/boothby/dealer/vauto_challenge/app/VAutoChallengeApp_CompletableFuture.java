@@ -72,52 +72,45 @@ public class VAutoChallengeApp_CompletableFuture {
 						.distinct()
 						.collect(Collectors.toList());
 				final String finalDatasetId = datasetId;
-				// Get each vehicle and it's dealer asynchronously.
+				// Create all the futures, which are async tasks to get vehicle and it's dealer.  Will make
+				// only one(1) call to APIs per vehicle and dealer.
 				DealersApi dealersApi = new DealersApi();
 				Map<Integer, DealersResponse> dealerMap = new HashMap<Integer, DealersResponse>();
 				Map<Integer, VehicleResponse> vehicleMap = new HashMap<Integer, VehicleResponse>();
-				List<Future<VehicleDealerResponse>> futureList = new ArrayList<Future<VehicleDealerResponse>>();
-				for (Integer vehicleId : uniqueVehicleIdList) {
-					CompletableFuture<VehicleDealerResponse> vehicleDealerResponseFuture = 
-						CompletableFuture.supplyAsync(new Supplier<VehicleDealerResponse>() {
-							@Override
-							public VehicleDealerResponse get() {
-								VehicleResponse vehicleResponse = null;
-								try {
-									vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, vehicleId);
-									vehicleMap.put(vehicleId, vehicleResponse);
-								} catch (ApiException e) {
-									e.printStackTrace();
-								}
-								DealersResponse dealersResponse = null;
-								if (dealerMap.containsKey(vehicleResponse.getDealerId())) {
-									dealersResponse = dealerMap.get(vehicleResponse.getDealerId());
-								} else {
+				List<CompletableFuture<Boolean>> futureList = 
+					uniqueVehicleIdList.stream()
+						.map(vehicleId ->
+							CompletableFuture.supplyAsync(new Supplier<Boolean>() {
+								@Override
+								public Boolean get() {
+									//TODO check vehicleMap if response already gotten for that vehicle id, then won't need the unique vehicle id filtering, above.
+									VehicleResponse vehicleResponse = null;
 									try {
-										dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
-										dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
+										vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, vehicleId);
+										vehicleMap.put(vehicleId, vehicleResponse);
 									} catch (ApiException e) {
 										e.printStackTrace();
 									}
+									DealersResponse dealersResponse = null;
+									if (dealerMap.containsKey(vehicleResponse.getDealerId())) {
+										dealersResponse = dealerMap.get(vehicleResponse.getDealerId());
+									} else {
+										try {
+											dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
+											dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
+										} catch (ApiException e) {
+											e.printStackTrace();
+										}
+									}
+									return true;
 								}
-								VehicleDealerResponse vehicleDealerResp = new VehicleDealerResponse();
-								vehicleDealerResp.vehicleResponse = vehicleResponse;
-								vehicleDealerResp.dealersResponse = dealersResponse;
-								return vehicleDealerResp;
-							}
-						}, executor);
-					futureList.add(vehicleDealerResponseFuture);
-				}
+							}, executor)).collect(Collectors.toList());
 				// Asynchronously execute all the tasks, and then we'll have the dealer and vehicle maps at that point,
-				// when each thread completes.
-				futureList.parallelStream()
-					.forEach((future) -> {
-						try {
-							future.get();
-						} catch (InterruptedException | ExecutionException e) {
-							logger.error(e);
-						}
-					});
+				// when each thread completes.  We're not interested in the boolean status return values of the future, just
+				// the maps of vehicles and dealers, that were created in the asynchronous processing.
+				futureList.stream()
+					.map(CompletableFuture::join)
+					.collect(Collectors.toList());
 				// Create Answer, which groups each dealer to all it's vehicles.
 				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
@@ -132,7 +125,9 @@ public class VAutoChallengeApp_CompletableFuture {
 					}
 					dealerAnswer.addVehiclesItem(vehicleAnswer);
 				}
-				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values().stream().collect(Collectors.toList());
+				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values()
+					.stream()
+					.collect(Collectors.toList());
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
