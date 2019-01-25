@@ -1,11 +1,13 @@
 package com.boothby.dealer.vauto_challenge.app;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +38,7 @@ public class VAutoChallengeApp_CompletableFuture {
 	
 	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_CompletableFuture.class);
 	
+	
 	/**
 	 * Create a program that retrieves a datasetID, retrieves all vehicles and
 	 * dealers for that dataset, and successfully posts to the answer endpoint. Each
@@ -55,28 +58,30 @@ public class VAutoChallengeApp_CompletableFuture {
 			logger.info(e);
 		}
 		if (StringUtils.isNotEmpty(datasetId)) {
+			ExecutorService executor = null;
 			try {
 				// Get all the vehicle identifiers.
 				VehiclesApi vehiclesApi = new VehiclesApi();
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
+				logger.info("TIME: " + new Date().getTime());
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Filter out duplicate vehicles, if any.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
-						.distinct()
-						.collect(Collectors.toList());
+					.distinct()
+					.collect(Collectors.toList());
 				// Not CPU intensive, mostly network, so increase threads beyond number processors.
 				// Create an executor with thread pool based on the number of vehicles, but
 				// up to reasonable limit.
 				//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-				ExecutorService executor = Executors.newFixedThreadPool(Math.min(uniqueVehicleIdList.size(), MAX_EXECUTOR_THREADS));
+				executor = Executors.newFixedThreadPool(Math.min(uniqueVehicleIdList.size(), MAX_EXECUTOR_THREADS));
+				final ExecutorService finalExecutor = executor;
 				final String finalDatasetId = datasetId;
 				// Create all the futures, which are async tasks to get vehicle and it's dealer.  Will make
 				// only one(1) call to APIs per vehicle and dealer.
 				DealersApi dealersApi = new DealersApi();
-				Map<Integer, DealersResponse> dealerMap = new HashMap<Integer, DealersResponse>();
-				Map<Integer, VehicleResponse> vehicleMap = new HashMap<Integer, VehicleResponse>();
-				List<CompletableFuture<Boolean>> futureList = 
-					uniqueVehicleIdList.stream()
+				Map<Integer, DealersResponse> dealerMap = new ConcurrentHashMap<Integer, DealersResponse>();
+				Map<Integer, VehicleResponse> vehicleMap = new ConcurrentHashMap<Integer, VehicleResponse>();
+				uniqueVehicleIdList.stream()
 						.map(vehicleId ->
 							CompletableFuture.supplyAsync(new Supplier<Boolean>() {
 								@Override
@@ -98,14 +103,12 @@ public class VAutoChallengeApp_CompletableFuture {
 									}
 									return true;
 								}
-							}, executor))
+							}, finalExecutor))
+						.collect(Collectors.toList())
+						.stream()
+						.map(CompletableFuture::join)
 						.collect(Collectors.toList());
-				// Asynchronously execute all the tasks, and then we'll have the dealer and vehicle maps at that point,
-				// when each thread completes.  We're not interested in the boolean status return values of the futures, just
-				// the maps of vehicles and dealers, that were created in the asynchronous processing.
-				futureList.stream()
-					.map(CompletableFuture::join)
-					.collect(Collectors.toList());
+				logger.info("TIME: " + new Date().getTime());
 				// Create Answer, which groups each dealer to all it's vehicles.
 				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
@@ -130,10 +133,13 @@ public class VAutoChallengeApp_CompletableFuture {
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
-				// Shutdown executor
-				executor.shutdown();
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
+			} finally {
+				// Shutdown executor
+				if (executor != null) {
+					executor.shutdown();
+				}
 			}
 		}
 	}
