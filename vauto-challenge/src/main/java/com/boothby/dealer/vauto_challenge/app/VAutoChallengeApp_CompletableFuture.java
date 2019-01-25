@@ -81,31 +81,34 @@ public class VAutoChallengeApp_CompletableFuture {
 				DealersApi dealersApi = new DealersApi();
 				Map<Integer, DealersResponse> dealerMap = new ConcurrentHashMap<Integer, DealersResponse>();
 				Map<Integer, VehicleResponse> vehicleMap = new ConcurrentHashMap<Integer, VehicleResponse>();
-				uniqueVehicleIdList.stream()
-						.map(vehicleId ->
-							CompletableFuture.supplyAsync(new Supplier<Boolean>() {
-								@Override
-								public Boolean get() {
-									VehicleResponse vehicleResponse = null;
-									try {
-										vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, vehicleId);
-										vehicleMap.put(vehicleId, vehicleResponse);
-									} catch (ApiException e) {
-										logger.error(e);
-									}
-									if (!dealerMap.containsKey(vehicleResponse.getDealerId())) {
+				List<CompletableFuture<Boolean>> futures = 
+					uniqueVehicleIdList.stream()
+							.map(vehicleId ->
+								CompletableFuture.supplyAsync(new Supplier<Boolean>() {
+									@Override
+									public Boolean get() {
+										VehicleResponse vehicleResponse = null;
 										try {
-											DealersResponse dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
-											dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
+											vehicleResponse = vehiclesApi.vehiclesGetVehicle(finalDatasetId, vehicleId);
+											vehicleMap.put(vehicleId, vehicleResponse);
 										} catch (ApiException e) {
 											logger.error(e);
 										}
+										if (!dealerMap.containsKey(vehicleResponse.getDealerId())) {
+											try {
+												DealersResponse dealersResponse = dealersApi.dealersGetDealer(finalDatasetId, vehicleResponse.getDealerId());
+												dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
+											} catch (ApiException e) {
+												logger.error(e);
+											}
+										}
+										return true;
 									}
-									return true;
-								}
-							}, finalExecutor))
-						.collect(Collectors.toList())
-						.stream()
+								}, finalExecutor))
+							.collect(Collectors.toList());
+				// Execute the futures, waiting for them to complete.  Not interested in final list of boolean statuses, just
+				// the vehicle and dealer maps that were created in each async task.
+				futures.stream()
 						.map(CompletableFuture::join)
 						.collect(Collectors.toList());
 				logger.info("TIME: " + new Date().getTime());
