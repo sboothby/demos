@@ -32,9 +32,13 @@ public class NavigationItem {
 		// Create navigation tree
 		NavigationItem root = createNavigationTree();
 		// Print it out
-		printChildren(root, 0);
+		printStructure(root);
 	}
 	
+	/**
+	 * Create the entire navigation structure.
+	 * @return
+	 */
 	private static NavigationItem createNavigationTree() {
 		NavigationItem root = createNavItem(ROOT_URL, "root");
 
@@ -55,6 +59,12 @@ public class NavigationItem {
 		return root;
 	}
 
+	/**
+	 * Create a single navigation item
+	 * @param url
+	 * @param label
+	 * @return
+	 */
 	private static NavigationItem createNavItem(String url, String label) {
 		NavigationItem navItem = new NavigationItem();
 		navItem.url = url;
@@ -63,16 +73,31 @@ public class NavigationItem {
 		return navItem;
 	}
 	
-	private static void printChildren(NavigationItem navItem, int level) {
-		if (level > 0) {
-			String indent = "";
-			for(int i=1; i<level; i++) {
-				indent += "\t";
-			}
-			System.out.println(String.format("%sLabel: %s; URL: %s", indent, navItem.label, navItem.url));
+	/**
+	 * Ouput the entire structure
+	 * @param root top-level node which may have child nodes
+	 */
+	private static void printStructure(NavigationItem root) {
+		// Start emitting the child nodes at the first level.  This will skip the root node, per requirements.
+		printChildren(root.children, 1);
+	}
+	
+	/**
+	 * Output all the child nodes
+	 * @param children all child nodes
+	 * @param level what position in the hierarchy the node exists at
+	 */
+	private static void printChildren(List<NavigationItem> children, int level) {
+		// Prepare indentation by level.
+		String indent = "";
+		for (int i=1; i<level; i++) {
+			indent += "\t";
 		}
-		for(int j=0; j<navItem.children.size(); j++) {
-			printChildren(navItem.children.get(j), ++level);
+		// Walk the child nodes emitting the current level, then traversing depth-first down levels.
+		for(int j=0; j<children.size(); j++) {
+			NavigationItem child = children.get(j);
+			System.out.println(String.format("%sLabel: %s; URL: %s", indent, child.label, child.url));
+			printChildren(child.children, ++level);
 		}
 	}
 }
