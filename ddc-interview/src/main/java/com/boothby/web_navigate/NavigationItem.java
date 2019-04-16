@@ -97,7 +97,7 @@ public class NavigationItem {
 		for(int j=0; j<children.size(); j++) {
 			NavigationItem child = children.get(j);
 			System.out.println(String.format("%sLabel: %s; URL: %s", indent, child.label, child.url));
-			printChildren(child.children, ++level);
+			printChildren(child.children, (level+1));
 		}
 	}
 }
