@@ -89,15 +89,25 @@ public class NavigationItem {
 	 */
 	private static void printChildren(List<NavigationItem> children, int level) {
 		// Prepare indentation by level.
-		String indent = "";
-		for (int i=1; i<level; i++) {
-			indent += "\t";
-		}
+		String indent = getIndent(level);
 		// Walk the child nodes emitting the current level, then traversing depth-first down levels.
 		for(int j=0; j<children.size(); j++) {
 			NavigationItem child = children.get(j);
 			System.out.println(String.format("%sLabel: %s; URL: %s", indent, child.label, child.url));
 			printChildren(child.children, (level+1));
 		}
+	}
+	
+	/**
+	 * Get the right amount of tabs for the node level.
+	 * @param level position in the hierarchy of the node
+	 * @return tabs corresponding to position of node (level)
+	 */
+	private static String getIndent(int level) {
+		StringBuilder sb = new StringBuilder();
+		for(int i=1; i<level; i++) {
+			sb.append("\t");
+		}
+		return sb.toString();
 	}
 }
