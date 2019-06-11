@@ -10,18 +10,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.boothby.dealer.vauto_challenge.client.api.DataSetApi;
-import com.boothby.dealer.vauto_challenge.client.api.DealersApi;
-import com.boothby.dealer.vauto_challenge.client.api.VehiclesApi;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.ApiException;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.Answer;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.AnswerResponse;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.DatasetIdResponse;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.DealerAnswer;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.DealersResponse;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.VehicleAnswer;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.VehicleIdsResponse;
-import com.boothby.dealer.vauto_challenge.client.api.io.swagger.client.model.VehicleResponse;
+import io.swagger.client.ApiException;
+import io.swagger.client.api.DataSetApi;
+import io.swagger.client.api.DealersApi;
+import io.swagger.client.api.VehiclesApi;
+import io.swagger.client.model.Answer;
+import io.swagger.client.model.AnswerResponse;
+import io.swagger.client.model.DatasetIdResponse;
+import io.swagger.client.model.DealerAnswer;
+import io.swagger.client.model.DealersResponse;
+import io.swagger.client.model.VehicleAnswer;
+import io.swagger.client.model.VehicleIdsResponse;
+import io.swagger.client.model.VehicleResponse;
 
 public class VAutoChallengeApp_ParallelStream {
 
