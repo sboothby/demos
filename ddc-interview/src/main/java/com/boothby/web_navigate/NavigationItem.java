@@ -74,11 +74,11 @@ public class NavigationItem {
 	}
 	
 	/**
-	 * Ouput the entire structure
+	 * Output the entire structure
 	 * @param root top-level node which may have child nodes
 	 */
 	private static void printStructure(NavigationItem root) {
-		// Start emitting the child nodes at the first level.  This will skip the root node, per requirements.
+		// Emit child nodes starting at the first level.  This will skip the root node, per requirements.
 		printChildren(root.children, 1);
 	}
 	
