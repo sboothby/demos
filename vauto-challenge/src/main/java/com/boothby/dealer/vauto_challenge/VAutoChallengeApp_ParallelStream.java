@@ -1,4 +1,4 @@
-package com.boothby.dealer.vauto_challenge.app;
+package com.boothby.dealer.vauto_challenge;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,18 +10,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.client.ApiException;
-import io.swagger.client.api.DataSetApi;
-import io.swagger.client.api.DealersApi;
-import io.swagger.client.api.VehiclesApi;
-import io.swagger.client.model.Answer;
-import io.swagger.client.model.AnswerResponse;
-import io.swagger.client.model.DatasetIdResponse;
-import io.swagger.client.model.DealerAnswer;
-import io.swagger.client.model.DealersResponse;
-import io.swagger.client.model.VehicleAnswer;
-import io.swagger.client.model.VehicleIdsResponse;
-import io.swagger.client.model.VehicleResponse;
+import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
+import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
+import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
+import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
+import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
+import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
+import com.boothby.dealer.vauto_challenge.api.model.Answer;
+import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
+import com.boothby.dealer.vauto_challenge.api.model.ApiException;
+import com.boothby.dealer.vauto_challenge.api.model.DatasetIdResponse;
+import com.boothby.dealer.vauto_challenge.api.model.DealerAnswer;
+import com.boothby.dealer.vauto_challenge.api.model.DealersResponse;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleAnswer;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleIdsResponse;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
 
 public class VAutoChallengeApp_ParallelStream {
 
@@ -50,7 +53,7 @@ public class VAutoChallengeApp_ParallelStream {
 		public VehicleResponse getVehicleResponse() {
 			VehicleResponse vehicleResponse = null;
 			try {
-				vehicleResponse = vehiclesApi.vehiclesGetVehicle(datasetId, vehicleId);
+				vehicleResponse = vehiclesApi.getVehicle(datasetId, vehicleId);
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
 			}
@@ -73,7 +76,7 @@ public class VAutoChallengeApp_ParallelStream {
 		public DealersResponse getDealerResponse() {
 			DealersResponse dealersResponse = null;
 			try {
-				dealersResponse = dealersApi.dealersGetDealer(datasetId, dealerId);
+				dealersResponse = dealersApi.getDealer(datasetId, dealerId);
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
 			}
@@ -83,11 +86,11 @@ public class VAutoChallengeApp_ParallelStream {
 
 	private void process() {
 		// Get new dataset id.
-		DataSetApi datasetApi = new DataSetApi();
+		DataSetApi datasetApi = new DataSetApiImpl();
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {
-			dsIdResponse = datasetApi.dataSetGetDataSetId();
+			dsIdResponse = datasetApi.getDataSetId();
 			datasetId = dsIdResponse.getDatasetId();
 		} catch (ApiException e) {
 			logger.info(e);
@@ -95,8 +98,8 @@ public class VAutoChallengeApp_ParallelStream {
 		if (StringUtils.isNotEmpty(datasetId)) {
 			try {
 				// Get all the vehicle identifiers.
-				VehiclesApi vehiclesApi = new VehiclesApi();
-				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
+				VehiclesApi vehiclesApi = new VehiclesApiImpl();
+				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.getIds(datasetId);
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Get all vehicles details, each only once.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
@@ -118,7 +121,7 @@ public class VAutoChallengeApp_ParallelStream {
 						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
 						.collect(Collectors.toList());
 				// Create each dealer response task.
-				DealersApi dealersApi = new DealersApi();
+				DealersApi dealersApi = new DealersApiImpl();
 				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.parallelStream()
 						.map(dealerId -> new DealerResponseTask(dealersApi, finalDatasetId, dealerId))
 						.collect(Collectors.toList());
@@ -145,7 +148,7 @@ public class VAutoChallengeApp_ParallelStream {
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
-				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
+				AnswerResponse answerResponse = datasetApi.postAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));

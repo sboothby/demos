@@ -1,6 +1,5 @@
-package com.boothby.dealer.vauto_challenge.app;
+package com.boothby.dealer.vauto_challenge;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +7,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -19,18 +16,21 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.client.ApiException;
-import io.swagger.client.api.DataSetApi;
-import io.swagger.client.api.DealersApi;
-import io.swagger.client.api.VehiclesApi;
-import io.swagger.client.model.Answer;
-import io.swagger.client.model.AnswerResponse;
-import io.swagger.client.model.DatasetIdResponse;
-import io.swagger.client.model.DealerAnswer;
-import io.swagger.client.model.DealersResponse;
-import io.swagger.client.model.VehicleAnswer;
-import io.swagger.client.model.VehicleIdsResponse;
-import io.swagger.client.model.VehicleResponse;
+import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
+import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
+import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
+import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
+import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
+import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
+import com.boothby.dealer.vauto_challenge.api.model.Answer;
+import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
+import com.boothby.dealer.vauto_challenge.api.model.ApiException;
+import com.boothby.dealer.vauto_challenge.api.model.DatasetIdResponse;
+import com.boothby.dealer.vauto_challenge.api.model.DealerAnswer;
+import com.boothby.dealer.vauto_challenge.api.model.DealersResponse;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleAnswer;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleIdsResponse;
+import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
 
 public class VAutoChallengeApp_CompletableFuture {
 
@@ -38,8 +38,8 @@ public class VAutoChallengeApp_CompletableFuture {
 	
 	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_CompletableFuture.class);
 	
-	private VehiclesApi vehiclesApi = new VehiclesApi();
-	private DealersApi dealersApi = new DealersApi();
+	private VehiclesApi vehiclesApi = new VehiclesApiImpl();
+	private DealersApi dealersApi = new DealersApiImpl();
 	private Map<Integer, DealersResponse> dealerMap = new ConcurrentHashMap<Integer, DealersResponse>();
 	private Map<Integer, VehicleResponse> vehicleMap = new ConcurrentHashMap<Integer, VehicleResponse>();
 	// Not CPU intensive, mostly network, so increase threads beyond number processors.
@@ -55,11 +55,11 @@ public class VAutoChallengeApp_CompletableFuture {
 	 */
 	private void process() {
 		// Get new dataset id.
-		DataSetApi datasetApi = new DataSetApi();
+		DataSetApi datasetApi = new DataSetApiImpl();
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {
-			dsIdResponse = datasetApi.dataSetGetDataSetId();
+			dsIdResponse = datasetApi.getDataSetId();
 			datasetId = dsIdResponse.getDatasetId();
 		} catch (ApiException e) {
 			logger.info(e);
@@ -68,7 +68,7 @@ public class VAutoChallengeApp_CompletableFuture {
 			ExecutorService executor = null;
 			try {
 				// Get all the vehicle identifiers.
-				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.vehiclesGetIds(datasetId);
+				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.getIds(datasetId);
 				logger.info("TIME: " + new Date().getTime());
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Filter out duplicate vehicles, if any.
@@ -107,7 +107,7 @@ public class VAutoChallengeApp_CompletableFuture {
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
-				AnswerResponse answerResponse = datasetApi.dataSetPostAnswer(datasetId, answer);
+				AnswerResponse answerResponse = datasetApi.postAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
@@ -134,14 +134,14 @@ public class VAutoChallengeApp_CompletableFuture {
 				public Boolean get() {
 					VehicleResponse vehicleResponse = null;
 					try {
-						vehicleResponse = vehiclesApi.vehiclesGetVehicle(datasetId, vehicleId);
+						vehicleResponse = vehiclesApi.getVehicle(datasetId, vehicleId);
 						vehicleMap.put(vehicleId, vehicleResponse);
 					} catch (ApiException e) {
 						logger.error(e);
 					}
 					if (!dealerMap.containsKey(vehicleResponse.getDealerId())) {
 						try {
-							DealersResponse dealersResponse = dealersApi.dealersGetDealer(datasetId, vehicleResponse.getDealerId());
+							DealersResponse dealersResponse = dealersApi.getDealer(datasetId, vehicleResponse.getDealerId());
 							dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
 						} catch (ApiException e) {
 							logger.error(e);
