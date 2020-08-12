@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.boot.CommandLineRunner;
 
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
@@ -26,7 +27,7 @@ import com.boothby.dealer.vauto_challenge.api.model.VehicleAnswer;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleIdsResponse;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
 
-public class VAutoChallengeApp_ParallelStream {
+public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 
 	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_ParallelStream.class);
 
@@ -189,8 +190,9 @@ public class VAutoChallengeApp_ParallelStream {
 		return dealerAnswer;
 	}
 
-	public static void main(String[] args) {
-		VAutoChallengeApp_ParallelStream app = new VAutoChallengeApp_ParallelStream();
-		app.process();
-	}
+    @Override
+    public void run(String... args) throws Exception {
+        VAutoChallengeApp_ParallelStream app = new VAutoChallengeApp_ParallelStream();
+        app.process();
+    }
 }
