@@ -2,11 +2,14 @@ package com.boothby.dealer.vauto_challenge.api.client;
 
 import com.boothby.dealer.vauto_challenge.api.model.ApiException;
 import com.boothby.dealer.vauto_challenge.api.model.DealersResponse;
+import com.boothby.dealer.vauto_challenge.config.AppConfig;
 
 public class DealersApiImpl implements DealersApi {
 
-    public DealersApiImpl() {
-        // TODO Auto-generated constructor stub
+    private AppConfig appConfig;
+    
+    public DealersApiImpl(AppConfig appConfig) {
+        this.appConfig = appConfig;
     }
 
     @Override

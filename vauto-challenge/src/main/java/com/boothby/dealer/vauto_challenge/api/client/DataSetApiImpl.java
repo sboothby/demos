@@ -4,11 +4,14 @@ import com.boothby.dealer.vauto_challenge.api.model.Answer;
 import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
 import com.boothby.dealer.vauto_challenge.api.model.ApiException;
 import com.boothby.dealer.vauto_challenge.api.model.DatasetIdResponse;
+import com.boothby.dealer.vauto_challenge.config.AppConfig;
 
 public class DataSetApiImpl implements DataSetApi {
 
-    public DataSetApiImpl() {
-        // TODO Auto-generated constructor stub
+    private AppConfig appConfig;
+    
+    public DataSetApiImpl(AppConfig appConfig) {
+        this.appConfig = appConfig;
     }
 
     @Override

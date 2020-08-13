@@ -1,4 +1,4 @@
-package com.boothby.dealer.vauto_challenge;
+package com.boothby.dealer.vauto_challenge.service;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -15,14 +15,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.CommandLineRunner;
 
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
-import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
-import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
-import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
 import com.boothby.dealer.vauto_challenge.api.model.Answer;
 import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
 import com.boothby.dealer.vauto_challenge.api.model.ApiException;
@@ -33,14 +29,23 @@ import com.boothby.dealer.vauto_challenge.api.model.VehicleAnswer;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleIdsResponse;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
 
-public class VAutoChallengeApp_CompletableFuture implements CommandLineRunner {
+/**
+ * Create a program that retrieves a datasetID, retrieves all vehicles and
+ * dealers for that dataset, and successfully posts to the answer endpoint. Each
+ * vehicle and dealer should be requested only once. You will receive a response
+ * structure when you post to the answer endpoint that describes status and
+ * total elapsed time; your program should output this response.
+ */
+public class VAutoChallenge_CompletableFuture {
 
-	private static final Integer MAX_EXECUTOR_THREADS = 10;
+    private static Logger logger = LogManager.getLogger(VAutoChallenge_CompletableFuture.class);
+
+    private static final Integer MAX_EXECUTOR_THREADS = 10;
 	
-	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_CompletableFuture.class);
+	private DataSetApi dataSetApi;
+	private VehiclesApi vehiclesApi;
+	private DealersApi dealersApi;
 	
-	private VehiclesApi vehiclesApi = new VehiclesApiImpl();
-	private DealersApi dealersApi = new DealersApiImpl();
 	private Map<Integer, DealersResponse> dealerMap = new ConcurrentHashMap<Integer, DealersResponse>();
 	private Map<Integer, VehicleResponse> vehicleMap = new ConcurrentHashMap<Integer, VehicleResponse>();
 	// Not CPU intensive, mostly network, so increase threads beyond number processors.
@@ -48,19 +53,23 @@ public class VAutoChallengeApp_CompletableFuture implements CommandLineRunner {
 	private ExecutorService executor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREADS);
 
 	/**
-	 * Create a program that retrieves a datasetID, retrieves all vehicles and
-	 * dealers for that dataset, and successfully posts to the answer endpoint. Each
-	 * vehicle and dealer should be requested only once. You will receive a response
-	 * structure when you post to the answer endpoint that describes status and
-	 * total elapsed time; your program should output this response.
+	 * Constructor
+	 * @param dataSetApi
+	 * @param vehiclesApi
+	 * @param dealersApi
 	 */
-	private void process() {
+	public VAutoChallenge_CompletableFuture(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
+	    this.dataSetApi = dataSetApi;
+	    this.vehiclesApi = vehiclesApi;
+	    this.dealersApi = dealersApi;
+	}
+	
+	public void process() {
 		// Get new dataset id.
-		DataSetApi datasetApi = new DataSetApiImpl();
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {
-			dsIdResponse = datasetApi.getDataSetId();
+			dsIdResponse = dataSetApi.getDataSetId();
 			datasetId = dsIdResponse.getDatasetId();
 		} catch (ApiException e) {
 			logger.info(e);
@@ -108,7 +117,7 @@ public class VAutoChallengeApp_CompletableFuture implements CommandLineRunner {
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
-				AnswerResponse answerResponse = datasetApi.postAnswer(datasetId, answer);
+				AnswerResponse answerResponse = dataSetApi.postAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
@@ -183,10 +192,4 @@ public class VAutoChallengeApp_CompletableFuture implements CommandLineRunner {
 		dealerAnswer.setName(dealersResponse.getName());
 		return dealerAnswer;
 	}
-
-    @Override
-    public void run(String... args) throws Exception {
-        VAutoChallengeApp_CompletableFuture app = new VAutoChallengeApp_CompletableFuture();
-        app.process();
-    }
 }

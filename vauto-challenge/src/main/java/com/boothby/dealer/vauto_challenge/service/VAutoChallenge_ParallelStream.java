@@ -1,4 +1,4 @@
-package com.boothby.dealer.vauto_challenge;
+package com.boothby.dealer.vauto_challenge.service;
 
 import java.util.HashMap;
 import java.util.List;
@@ -9,14 +9,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.boot.CommandLineRunner;
 
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
-import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
-import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
-import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
 import com.boothby.dealer.vauto_challenge.api.model.Answer;
 import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
 import com.boothby.dealer.vauto_challenge.api.model.ApiException;
@@ -27,19 +23,34 @@ import com.boothby.dealer.vauto_challenge.api.model.VehicleAnswer;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleIdsResponse;
 import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
 
-public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
+/**
+ * Create a program that retrieves a datasetID, retrieves all vehicles and
+ * dealers for that dataset, and successfully posts to the answer endpoint. Each
+ * vehicle and dealer should be requested only once. You will receive a response
+ * structure when you post to the answer endpoint that describes status and
+ * total elapsed time; your program should output this response.
+ */
+public class VAutoChallenge_ParallelStream {
 
-	private static Logger logger = LogManager.getLogger(VAutoChallengeApp_ParallelStream.class);
+	private static Logger logger = LogManager.getLogger(VAutoChallenge_ParallelStream.class);
 
-	/**
-	 * Create a program that retrieves a datasetID, retrieves all vehicles and
-	 * dealers for that dataset, and successfully posts to the answer endpoint. Each
-	 * vehicle and dealer should be requested only once. You will receive a response
-	 * structure when you post to the answer endpoint that describes status and
-	 * total elapsed time; your program should output this response.
-	 */
+    private DataSetApi dataSetApi;
+    private VehiclesApi vehiclesApi;
+    private DealersApi dealersApi;
 
-	private class VehicleResponseTask {
+    /**
+     * Constructor
+     * @param dataSetApi
+     * @param vehiclesApi
+     * @param dealersApi
+     */
+    public VAutoChallenge_ParallelStream(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
+        this.dataSetApi = dataSetApi;
+        this.vehiclesApi = vehiclesApi;
+        this.dealersApi = dealersApi;
+    }
+    
+    private class VehicleResponseTask {
 
 		private VehiclesApi vehiclesApi;
 		private String datasetId;
@@ -85,13 +96,12 @@ public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 		}
 	}
 
-	private void process() {
+	public void process() {
 		// Get new dataset id.
-		DataSetApi datasetApi = new DataSetApiImpl();
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {
-			dsIdResponse = datasetApi.getDataSetId();
+			dsIdResponse = dataSetApi.getDataSetId();
 			datasetId = dsIdResponse.getDatasetId();
 		} catch (ApiException e) {
 			logger.info(e);
@@ -99,7 +109,6 @@ public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 		if (StringUtils.isNotEmpty(datasetId)) {
 			try {
 				// Get all the vehicle identifiers.
-				VehiclesApi vehiclesApi = new VehiclesApiImpl();
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.getIds(datasetId);
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Get all vehicles details, each only once.
@@ -122,7 +131,6 @@ public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
 						.collect(Collectors.toList());
 				// Create each dealer response task.
-				DealersApi dealersApi = new DealersApiImpl();
 				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.parallelStream()
 						.map(dealerId -> new DealerResponseTask(dealersApi, finalDatasetId, dealerId))
 						.collect(Collectors.toList());
@@ -149,7 +157,7 @@ public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
-				AnswerResponse answerResponse = datasetApi.postAnswer(datasetId, answer);
+				AnswerResponse answerResponse = dataSetApi.postAnswer(datasetId, answer);
 				// Output answer response (status, total elapsed time)
 				logger.info(String.format("Status: %s, total elapsed time (sec): %3.2f seconds",
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
@@ -189,10 +197,4 @@ public class VAutoChallengeApp_ParallelStream implements CommandLineRunner {
 		dealerAnswer.setName(dealersResponse.getName());
 		return dealerAnswer;
 	}
-
-    @Override
-    public void run(String... args) throws Exception {
-        VAutoChallengeApp_ParallelStream app = new VAutoChallengeApp_ParallelStream();
-        app.process();
-    }
 }
