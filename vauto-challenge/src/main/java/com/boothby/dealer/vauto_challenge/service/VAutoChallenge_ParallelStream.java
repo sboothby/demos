@@ -97,7 +97,9 @@ public class VAutoChallenge_ParallelStream {
 	}
 
 	public void process() {
-		// Get new dataset id.
+        logger.info("*** vAuto - Parallel Stream Solution ***");
+
+	    // Get new dataset id.
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {

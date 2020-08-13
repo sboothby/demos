@@ -1,6 +1,5 @@
 package com.boothby.dealer.vauto_challenge.service;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,9 @@ public class VAutoChallenge_CompletableFuture {
 	}
 	
 	public void process() {
-		// Get new dataset id.
+	    logger.info("*** vAuto - Completable Future Solution ***");
+	    
+	    // Get new dataset id.
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
 		try {
@@ -79,7 +80,7 @@ public class VAutoChallenge_CompletableFuture {
 			try {
 				// Get all the vehicle identifiers.
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.getIds(datasetId);
-				logger.info("TIME: " + new Date().getTime());
+				//logger.info("TIME: " + new Date().getTime());
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
 				// Filter out duplicate vehicles, if any.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
@@ -96,7 +97,7 @@ public class VAutoChallenge_CompletableFuture {
 				futures.stream()
 						.map(CompletableFuture::join)
 						.collect(Collectors.toList());
-				logger.info("TIME: " + new Date().getTime());
+				//logger.info("TIME: " + new Date().getTime());
 				// Create Answer, which groups each dealer to all it's vehicles.
 				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {

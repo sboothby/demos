@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.boothby.dealer.vauto_challenge.config.AppConfig;
@@ -43,6 +44,9 @@ public class VAutoChallengeApp {
                     vAutoChallenge_ParallelStream.process();
                     break;
             }
+            // Shutdown
+            ((ConfigurableApplicationContext)ctx).close();
+            System.exit(0);            
         };
     }
 }

@@ -3,6 +3,7 @@ package com.boothby.dealer.vauto_challenge.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApi;
 import com.boothby.dealer.vauto_challenge.api.client.DataSetApiImpl;
@@ -27,18 +28,18 @@ public class ConfigBeans {
     }
     
     @Bean
-    public DataSetApi dataSetApi(AppConfig appConfig) {
-        return new DataSetApiImpl(appConfig);
+    public DataSetApi dataSetApi(AppConfig appConfig, RestTemplate restTemplate) {
+        return new DataSetApiImpl(appConfig, restTemplate);
     }
     
     @Bean
-    public VehiclesApi vehiclesApi(AppConfig appConfig) {
-        return new VehiclesApiImpl(appConfig);
+    public VehiclesApi vehiclesApi(AppConfig appConfig, RestTemplate restTemplate) {
+        return new VehiclesApiImpl(appConfig, restTemplate);
     }
     
     @Bean
-    public DealersApi dealersApi(AppConfig appConfig) {
-        return new DealersApiImpl(appConfig);
+    public DealersApi dealersApi(AppConfig appConfig, RestTemplate restTemplate) {
+        return new DealersApiImpl(appConfig, restTemplate);
     }
     
     @Bean
@@ -54,5 +55,10 @@ public class ConfigBeans {
     @Bean
     public VAutoChallenge_OOP vAutoChallenge_OOP(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
         return new VAutoChallenge_OOP(dataSetApi, vehiclesApi, dealersApi);
+    }
+    
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
