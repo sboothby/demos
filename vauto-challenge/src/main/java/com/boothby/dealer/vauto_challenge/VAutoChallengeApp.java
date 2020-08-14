@@ -9,19 +9,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import com.boothby.dealer.vauto_challenge.config.AppConfig;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_CompletableFuture;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_OOP;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_ParallelStream;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.CompletableFutureSolution;
+import com.boothby.dealer.vauto_challenge.solution.parallel_stream.ParallelStreamSolution;
 
 @SpringBootApplication
 public class VAutoChallengeApp {
 
     @Autowired
-    private VAutoChallenge_CompletableFuture vAutoChallenge_CompletableFuture;
+    private CompletableFutureSolution completableFutureSolution;
     @Autowired
-    private VAutoChallenge_ParallelStream vAutoChallenge_ParallelStream;
-    @Autowired
-    private VAutoChallenge_OOP vAutoChallenge_OOP;
+    private ParallelStreamSolution parallelStreamSolution;
     
     public static void main(String[] args) {
         SpringApplication.run(VAutoChallengeApp.class, args);
@@ -32,16 +29,12 @@ public class VAutoChallengeApp {
         return args -> {
             AppConfig appConfig = (AppConfig)ctx.getBean("appConfig");
             switch(appConfig.getApiSolution()) {
-                case "OOP":
-                    vAutoChallenge_OOP.process();
-                    break;
-
                 case "CompletableFuture":
-                    vAutoChallenge_CompletableFuture.process();
+                    completableFutureSolution.process();
                     break;
                 
                 case "ParallelStream":
-                    vAutoChallenge_ParallelStream.process();
+                    parallelStreamSolution.process();
                     break;
             }
             // Shutdown

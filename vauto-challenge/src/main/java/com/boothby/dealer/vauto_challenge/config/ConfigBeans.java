@@ -1,5 +1,8 @@
 package com.boothby.dealer.vauto_challenge.config;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,9 +14,12 @@ import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
 import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_CompletableFuture;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_OOP;
-import com.boothby.dealer.vauto_challenge.service.VAutoChallenge_ParallelStream;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.AnswerAssembler;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.AnswerAssemblerImpl;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.CompletableFutureSolution;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.VehicleProvider;
+import com.boothby.dealer.vauto_challenge.solution.completable_future.VehicleProviderImpl;
+import com.boothby.dealer.vauto_challenge.solution.parallel_stream.ParallelStreamSolution;
 
 @Configuration
 public class ConfigBeans {
@@ -43,22 +49,32 @@ public class ConfigBeans {
     }
     
     @Bean
-    public VAutoChallenge_CompletableFuture vAutoChallenge_CompletableFuture(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
-        return new VAutoChallenge_CompletableFuture(dataSetApi, vehiclesApi, dealersApi);
+    public CompletableFutureSolution completableFutureSolution(DataSetApi dataSetApi, VehicleProvider vehicleProvider, AnswerAssembler answerAssembler) {
+        return new CompletableFutureSolution(dataSetApi, vehicleProvider, answerAssembler);
     }
     
     @Bean
-    public VAutoChallenge_ParallelStream vAutoChallenge_ParallelStream(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
-        return new VAutoChallenge_ParallelStream(dataSetApi, vehiclesApi, dealersApi);
+    public VehicleProvider vehicleProvider(VehiclesApi vehiclesApi, DealersApi dealersApi, ExecutorService executorService) {
+        return new VehicleProviderImpl(vehiclesApi, dealersApi, executorService);
     }
     
     @Bean
-    public VAutoChallenge_OOP vAutoChallenge_OOP(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
-        return new VAutoChallenge_OOP(dataSetApi, vehiclesApi, dealersApi);
+    public AnswerAssembler answerAssembler() {
+        return new AnswerAssemblerImpl();
+    }
+    
+    @Bean
+    public ParallelStreamSolution parallelStreamSolution(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
+        return new ParallelStreamSolution(dataSetApi, vehiclesApi, dealersApi);
     }
     
     @Bean
     public RestTemplate restTemplate() {
         return new RestTemplate();
+    }
+    
+    @Bean
+    public ExecutorService executorService() {
+        return Executors.newFixedThreadPool(10);
     }
 }

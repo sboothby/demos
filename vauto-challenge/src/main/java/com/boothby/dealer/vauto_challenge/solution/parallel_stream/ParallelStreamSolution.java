@@ -1,14 +1,9 @@
-package com.boothby.dealer.vauto_challenge.service;
+package com.boothby.dealer.vauto_challenge.solution.parallel_stream;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,37 +30,75 @@ import com.boothby.dealer.vauto_challenge.api.model.VehicleResponse;
  * structure when you post to the answer endpoint that describes status and
  * total elapsed time; your program should output this response.
  */
-public class VAutoChallenge_CompletableFuture {
+public class ParallelStreamSolution {
 
-    private static Logger logger = LogManager.getLogger(VAutoChallenge_CompletableFuture.class);
+	private static Logger logger = LogManager.getLogger(ParallelStreamSolution.class);
 
-    private static final Integer MAX_EXECUTOR_THREADS = 10;
-	
-	private DataSetApi dataSetApi;
-	private VehiclesApi vehiclesApi;
-	private DealersApi dealersApi;
-	
-	private Map<Integer, DealersResponse> dealerMap = new ConcurrentHashMap<Integer, DealersResponse>();
-	private Map<Integer, VehicleResponse> vehicleMap = new ConcurrentHashMap<Integer, VehicleResponse>();
-	// Not CPU intensive, mostly network, so increase threads beyond number processors.
-	//ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-	private ExecutorService executor = Executors.newFixedThreadPool(MAX_EXECUTOR_THREADS);
+    private DataSetApi dataSetApi;
+    private VehiclesApi vehiclesApi;
+    private DealersApi dealersApi;
 
-	/**
-	 * Constructor
-	 * @param dataSetApi
-	 * @param vehiclesApi
-	 * @param dealersApi
-	 */
-	public VAutoChallenge_CompletableFuture(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
-	    this.dataSetApi = dataSetApi;
-	    this.vehiclesApi = vehiclesApi;
-	    this.dealersApi = dealersApi;
+    /**
+     * Constructor
+     * @param dataSetApi
+     * @param vehiclesApi
+     * @param dealersApi
+     */
+    public ParallelStreamSolution(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
+        this.dataSetApi = dataSetApi;
+        this.vehiclesApi = vehiclesApi;
+        this.dealersApi = dealersApi;
+    }
+    
+    private class VehicleResponseTask {
+
+		private VehiclesApi vehiclesApi;
+		private String datasetId;
+		private int vehicleId;
+
+		public VehicleResponseTask(VehiclesApi vehiclesApi, String datasetId, int vehicleId) {
+			this.vehiclesApi = vehiclesApi;
+			this.datasetId = datasetId;
+			this.vehicleId = vehicleId;
+		}
+
+		public VehicleResponse getVehicleResponse() {
+			VehicleResponse vehicleResponse = null;
+			try {
+				vehicleResponse = vehiclesApi.getVehicle(datasetId, vehicleId);
+			} catch (ApiException e) {
+				logger.error(e.getMessage());
+			}
+			return vehicleResponse;
+		}
 	}
-	
+
+	private class DealerResponseTask {
+
+		private DealersApi dealersApi;
+		private String datasetId;
+		private int dealerId;
+
+		public DealerResponseTask(DealersApi dealersApi, String datasetId, int dealerId) {
+			this.dealersApi = dealersApi;
+			this.datasetId = datasetId;
+			this.dealerId = dealerId;
+		}
+
+		public DealersResponse getDealerResponse() {
+			DealersResponse dealersResponse = null;
+			try {
+				dealersResponse = dealersApi.getDealer(datasetId, dealerId);
+			} catch (ApiException e) {
+				logger.error(e.getMessage());
+			}
+			return dealersResponse;
+		}
+	}
+
 	public void process() {
-	    logger.info("*** vAuto - Completable Future Solution ***");
-	    
+        logger.info("*** vAuto - Parallel Stream Solution ***");
+
 	    // Get new dataset id.
 		DatasetIdResponse dsIdResponse = null;
 		String datasetId = null;
@@ -76,28 +109,38 @@ public class VAutoChallenge_CompletableFuture {
 			logger.info(e);
 		}
 		if (StringUtils.isNotEmpty(datasetId)) {
-			ExecutorService executor = null;
 			try {
 				// Get all the vehicle identifiers.
 				VehicleIdsResponse vehicleIdsResponse = vehiclesApi.getIds(datasetId);
-				//logger.info("TIME: " + new Date().getTime());
 				List<Integer> vehicleIdList = vehicleIdsResponse.getVehicleIds();
-				// Filter out duplicate vehicles, if any.
+				// Get all vehicles details, each only once.
 				List<Integer> uniqueVehicleIdList = vehicleIdList.parallelStream()
-					.distinct()
-					.collect(Collectors.toList());
+						.distinct()
+						.collect(Collectors.toList());
 				final String finalDatasetId = datasetId;
-				// Create all the futures, which are async tasks to get vehicle and it's dealer.  Will make
-				// only one(1) call to APIs per vehicle and dealer.
-				List<CompletableFuture<Boolean>> futures = uniqueVehicleIdList.stream()
-						.map(vehicleId -> getVehicleDealerFuture(vehicleId, finalDatasetId))
+				// Create each vehicle response task.
+				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.parallelStream()
+						.map(vehicleId -> new VehicleResponseTask(vehiclesApi, finalDatasetId, vehicleId))
 						.collect(Collectors.toList());
-				// Execute the futures, waiting for them to complete.  Not interested in final list of boolean statuses, just
-				// the vehicle and dealer maps that were created in each async task.
-				futures.stream()
-						.map(CompletableFuture::join)
+				// Execute each vehicle response task in parallel, obtaining map of vehicle
+				// details.
+				Map<Integer, VehicleResponse> vehicleMap = vehicleDetailTasks.parallelStream()
+						.map(VehicleResponseTask::getVehicleResponse)
+						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(), // map key
+																	 vehicleResponse -> vehicleResponse)); // map value
+				// Get all dealers, each only once.
+				List<Integer> uniqueDealerIdList = vehicleMap.entrySet().parallelStream()
+						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
 						.collect(Collectors.toList());
-				//logger.info("TIME: " + new Date().getTime());
+				// Create each dealer response task.
+				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.parallelStream()
+						.map(dealerId -> new DealerResponseTask(dealersApi, finalDatasetId, dealerId))
+						.collect(Collectors.toList());
+				// Execute each dealer response task in parallel, obtaining map of dealers.
+				Map<Integer, DealersResponse> dealerMap = dealerResponseTasks.parallelStream()
+						.map(DealerResponseTask::getDealerResponse)
+						.collect(Collectors.toMap(dealerResponse -> dealerResponse.getDealerId(), // map key
+																	dealerResponse -> dealerResponse)); // map value
 				// Create Answer, which groups each dealer to all it's vehicles.
 				Map<Integer, DealerAnswer> dealerAnswerMap = new HashMap<Integer, DealerAnswer>();
 				for (Entry<Integer, VehicleResponse> vehicleEntry : vehicleMap.entrySet()) {
@@ -112,9 +155,7 @@ public class VAutoChallenge_CompletableFuture {
 					}
 					dealerAnswer.addVehiclesItem(vehicleAnswer);
 				}
-				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values()
-					.stream()
-					.collect(Collectors.toList());
+				List<DealerAnswer> dealerAnswerList = dealerAnswerMap.values().stream().collect(Collectors.toList());
 				Answer answer = new Answer();
 				answer.setDealers(dealerAnswerList);
 				// Post to answer endpoint.
@@ -124,45 +165,10 @@ public class VAutoChallenge_CompletableFuture {
 						answerResponse.getMessage(), (float) answerResponse.getTotalMilliseconds() / 1000.0f));
 			} catch (ApiException e) {
 				logger.error(e.getMessage());
-			} finally {
-				// Shutdown executor
-				if (executor != null) {
-					executor.shutdown();
-				}
 			}
 		}
 	}
 
-	/**
-	 * Get a future invocation for vehicle detail with it's dealer info.
-	 * @param vehicleId
-	 * @param datasetId
-	 * @return
-	 */
-	private CompletableFuture<Boolean> getVehicleDealerFuture(Integer vehicleId, String datasetId) {
-		return CompletableFuture.supplyAsync(new Supplier<Boolean>() {
-				@Override
-				public Boolean get() {
-					VehicleResponse vehicleResponse = null;
-					try {
-						vehicleResponse = vehiclesApi.getVehicle(datasetId, vehicleId);
-						vehicleMap.put(vehicleId, vehicleResponse);
-					} catch (ApiException e) {
-						logger.error(e);
-					}
-					if (!dealerMap.containsKey(vehicleResponse.getDealerId())) {
-						try {
-							DealersResponse dealersResponse = dealersApi.getDealer(datasetId, vehicleResponse.getDealerId());
-							dealerMap.put(vehicleResponse.getDealerId(), dealersResponse);
-						} catch (ApiException e) {
-							logger.error(e);
-						}
-					}
-					return true;
-				}
-		}, executor);
-	}
-	
 	/**
 	 * Get a vehicle answer object from the API response.
 	 * 
