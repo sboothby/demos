@@ -74,28 +74,28 @@ public class ParallelStreamSolution {
 						.collect(Collectors.toList());
 				final String finalDatasetId = datasetId;
 				// Create each vehicle response task.
-				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.parallelStream()
+				List<VehicleResponseTask> vehicleDetailTasks = uniqueVehicleIdList.stream()
 						.map(vehicleId -> new VehicleResponseTask(vehiclesApi, finalDatasetId, vehicleId))
 						.collect(Collectors.toList());
-				// Execute each vehicle response task in parallel, obtaining map of vehicle
-				// details.
+				// Execute each vehicle response task in parallel, obtaining map of vehicle details.
 				Map<Integer, VehicleResponse> vehicleMap = vehicleDetailTasks.parallelStream()
 						.map(VehicleResponseTask::getVehicleResponse)
-						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(), // map key
-																	 vehicleResponse -> vehicleResponse)); // map value
-				// Get all dealers, each only once.
+						.collect(Collectors.toMap(vehicleResponse -> vehicleResponse.getVehicleId(),      // map key
+																	 vehicleResponse -> vehicleResponse));// map value
+				// Filter to unique dealers (to get all dealers only once via API).
 				List<Integer> uniqueDealerIdList = vehicleMap.entrySet().parallelStream()
-						.map(entry -> new Integer(entry.getValue().getDealerId())).distinct()
+						.map(entry -> new Integer(entry.getValue().getDealerId()))
+						.distinct()
 						.collect(Collectors.toList());
 				// Create each dealer response task.
-				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.parallelStream()
+				List<DealerResponseTask> dealerResponseTasks = uniqueDealerIdList.stream()
 						.map(dealerId -> new DealerResponseTask(dealersApi, finalDatasetId, dealerId))
 						.collect(Collectors.toList());
 				// Execute each dealer response task in parallel, obtaining map of dealers.
 				Map<Integer, DealersResponse> dealerMap = dealerResponseTasks.parallelStream()
 						.map(DealerResponseTask::getDealerResponse)
-						.collect(Collectors.toMap(dealerResponse -> dealerResponse.getDealerId(), // map key
-																	dealerResponse -> dealerResponse)); // map value
+						.collect(Collectors.toMap(dealerResponse -> dealerResponse.getDealerId(),         // map key
+																	dealerResponse -> dealerResponse));   // map value
 				
 				// Init map holder for answer assembler to group the dealers and vehicles.
 				VehiclesAndDealers vehiclesAndDealers = new VehiclesAndDealers();
