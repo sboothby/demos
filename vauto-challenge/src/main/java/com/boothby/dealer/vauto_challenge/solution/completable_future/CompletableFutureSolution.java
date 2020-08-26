@@ -12,6 +12,7 @@ import com.boothby.dealer.vauto_challenge.api.model.AnswerResponse;
 import com.boothby.dealer.vauto_challenge.api.model.ApiException;
 import com.boothby.dealer.vauto_challenge.api.model.DatasetIdResponse;
 import com.boothby.dealer.vauto_challenge.api.model.VehiclesAndDealers;
+import com.boothby.dealer.vauto_challenge.solution.answer.AnswerAssembler;
 
 /**
  * Create a program that retrieves a datasetID, retrieves all vehicles and

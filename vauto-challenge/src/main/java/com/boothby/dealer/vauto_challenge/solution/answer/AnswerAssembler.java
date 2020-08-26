@@ -1,4 +1,4 @@
-package com.boothby.dealer.vauto_challenge.solution.completable_future;
+package com.boothby.dealer.vauto_challenge.solution.answer;
 
 import com.boothby.dealer.vauto_challenge.api.model.Answer;
 import com.boothby.dealer.vauto_challenge.api.model.VehiclesAndDealers;

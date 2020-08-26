@@ -1,4 +1,4 @@
-package com.boothby.dealer.vauto_challenge.solution.completable_future;
+package com.boothby.dealer.vauto_challenge.solution.answer;
 
 import java.util.HashMap;
 import java.util.List;

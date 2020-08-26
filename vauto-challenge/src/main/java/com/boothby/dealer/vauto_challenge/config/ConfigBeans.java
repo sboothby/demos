@@ -14,8 +14,8 @@ import com.boothby.dealer.vauto_challenge.api.client.DealersApi;
 import com.boothby.dealer.vauto_challenge.api.client.DealersApiImpl;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApi;
 import com.boothby.dealer.vauto_challenge.api.client.VehiclesApiImpl;
-import com.boothby.dealer.vauto_challenge.solution.completable_future.AnswerAssembler;
-import com.boothby.dealer.vauto_challenge.solution.completable_future.AnswerAssemblerImpl;
+import com.boothby.dealer.vauto_challenge.solution.answer.AnswerAssembler;
+import com.boothby.dealer.vauto_challenge.solution.answer.AnswerAssemblerImpl;
 import com.boothby.dealer.vauto_challenge.solution.completable_future.CompletableFutureSolution;
 import com.boothby.dealer.vauto_challenge.solution.completable_future.VehicleProvider;
 import com.boothby.dealer.vauto_challenge.solution.completable_future.VehicleProviderImpl;
@@ -64,8 +64,9 @@ public class ConfigBeans {
     }
     
     @Bean
-    public ParallelStreamSolution parallelStreamSolution(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi) {
-        return new ParallelStreamSolution(dataSetApi, vehiclesApi, dealersApi);
+    public ParallelStreamSolution parallelStreamSolution(DataSetApi dataSetApi, VehiclesApi vehiclesApi, DealersApi dealersApi,
+            AnswerAssembler answerAssembler) {
+        return new ParallelStreamSolution(dataSetApi, vehiclesApi, dealersApi, answerAssembler);
     }
     
     @Bean
