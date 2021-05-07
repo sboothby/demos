@@ -6,12 +6,12 @@ Building mapping system. Application and services that allow for creation and na
 ## Creational
 Make creation process of objects more adaptable.
 
-[Creational patterns](src/main/java/com/boothby/design/patterns/behavioral/creational.md)
+[Creational patterns](src/main/java/com/boothby/design/patterns/creational/creational.md)
 
 ## Structural
 Put together different parts of a system in a flexible manner.
 
-[Structural patterns](src/main/java/com/boothby/design/patterns/behavioral/structural.md)
+[Structural patterns](src/main/java/com/boothby/design/patterns/structural/structural.md)
 
 ## Behavioral
 Organizing operations and actions.
