@@ -8,4 +8,12 @@
   <artifactId>design-patterns</artifactId>
   <name>design-patterns</name>
   <description>Example design patterns</description>
+  
+  <dependencies>
+	<dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-lang3</artifactId>
+	    <version>3.12.0</version>
+	</dependency>  
+  </dependencies>
 </project>

@@ -2,16 +2,13 @@ package com.boothby.design.patterns.model;
 
 public class DoorPlacement {
 
-    public enum DoorWall {
-        FRONT_WALL, BACK_WALL, RIGHT_WALLL, LEFT_WALL
+    public enum DoorLocation {
+        FRONT_LEFT, FRONT_CENTER, FRONT_RIGHT, RIGHT_CENTER, BACK_RIGHT, BACK_CENTER, BACK_LEFT, LEFT_CENTER
     };
 
-    
     private Door door;
-    private DoorWall doorWall;
-    private float leftOffsetFt; // looking at the wall, how many feet to shift door to the left
-    private float rightOffsetFt; // looking at the wall, how many feet to shift door to the right
-    
+    private DoorLocation doorLocation;
+
     public Door getDoor() {
         return door;
     }
@@ -20,27 +17,11 @@ public class DoorPlacement {
         this.door = door;
     }
 
-    public DoorWall getDoorWall() {
-        return doorWall;
+    public DoorLocation getDoorLocation() {
+        return doorLocation;
     }
 
-    public void setDoorWall(DoorWall doorWall) {
-        this.doorWall = doorWall;
-    }
-
-    public float getLeftOffsetFt() {
-        return leftOffsetFt;
-    }
-
-    public void setLeftOffsetFt(float leftOffsetFt) {
-        this.leftOffsetFt = leftOffsetFt;
-    }
-
-    public float getRightOffsetFt() {
-        return rightOffsetFt;
-    }
-
-    public void setRightOffsetFt(float rightOffsetFt) {
-        this.rightOffsetFt = rightOffsetFt;
+    public void setDoorLocation(DoorLocation doorLocation) {
+        this.doorLocation = doorLocation;
     }
 }

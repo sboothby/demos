@@ -6,6 +6,15 @@ public class Dimensions {
     private float heightFt;
     private float depthFt;
 
+    public Dimensions(float widthFt, float heightFt, float depthFt) {
+        this.widthFt = widthFt;
+        this.heightFt = heightFt;
+        this.depthFt = depthFt;
+    }
+    
+    public Dimensions() {
+    }
+
     public float getWidthFt() {
         return widthFt;
     }

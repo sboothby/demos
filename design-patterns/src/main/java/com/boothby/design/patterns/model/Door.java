@@ -8,13 +8,9 @@ public class Door {
         GLASS
     };
 
-    public enum DoorColor {
-        GREY, BROWN, WHITE
-    }
-
     private DoorType type;
     private Dimensions dimensions;
-    private DoorColor color;
+    private String color;
     private String manufacturer;
     
     public DoorType getType() {
@@ -33,19 +29,19 @@ public class Door {
         this.dimensions = dimensions;
     }
 
-    public DoorColor getColor() {
-        return color;
-    }
-
-    public void setColor(DoorColor color) {
-        this.color = color;
-    }
-
     public String getManufacturer() {
         return manufacturer;
     }
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
     }
 }

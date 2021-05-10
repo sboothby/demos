@@ -64,4 +64,5 @@ public class Room {
     public void setWalls(List<Wall> walls) {
         this.walls = walls;
     }
+    
 }

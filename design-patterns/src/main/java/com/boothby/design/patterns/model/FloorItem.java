@@ -4,6 +4,10 @@ public abstract class FloorItem {
 
     private Dimensions itemDimensions;
 
+    public FloorItem(Dimensions itemDimensions) {
+        this.itemDimensions = itemDimensions;
+    }
+    
     public Dimensions getItemDimensions() {
         return itemDimensions;
     }

@@ -6,23 +6,9 @@ public class Ceiling {
         POPCORN, DRYWALL
     };
 
-    public enum CeilingColor {
-        WHITE, BROWN
-    }
-
-    private float height;
     private CeilingType type;
-    private CeilingColor color;
-    private Dimensions ceilingDimensions;
-
-    public float getHeight() {
-        return height;
-    }
-
-    public void setHeight(float height) {
-        this.height = height;
-    }
-
+    private String color;
+    
     public CeilingType getType() {
         return type;
     }
@@ -31,19 +17,11 @@ public class Ceiling {
         this.type = type;
     }
 
-    public CeilingColor getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(CeilingColor color) {
+    public void setColor(String color) {
         this.color = color;
-    }
-
-    public Dimensions getCeilingDimensions() {
-        return ceilingDimensions;
-    }
-
-    public void setCeilingDimensions(Dimensions ceilingDimensions) {
-        this.ceilingDimensions = ceilingDimensions;
     }
 }

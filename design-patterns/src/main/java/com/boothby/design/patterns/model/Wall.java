@@ -9,9 +9,6 @@ public class Wall {
     private WallLocation location;
     private Dimensions dimensions;
 
-    public Wall() {
-    }
-    
     public WallLocation getLocation() {
         return location;
     }
