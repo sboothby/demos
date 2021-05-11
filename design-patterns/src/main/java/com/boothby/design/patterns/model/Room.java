@@ -10,10 +10,12 @@ public class Room {
     private Ceiling ceiling;
     private AbstractFloor floor;
     private List<DoorPlacement> doors;
-    private List<Wall> walls;
+    private List<WindowPlacement> windows;
+    private List<WallPlacement> walls;
 
     public Room() {
         doors = new ArrayList<>();
+        windows = new ArrayList<>();
         walls = new ArrayList<>();
     }
     
@@ -57,12 +59,25 @@ public class Room {
         this.doors = doors;
     }
 
-    public List<Wall> getWalls() {
+    public List<WindowPlacement> getWindows() {
+        return windows;
+    }
+
+    public void setWindows(List<WindowPlacement> windows) {
+        this.windows = windows;
+    }
+
+    public List<WallPlacement> getWalls() {
         return walls;
     }
 
-    public void setWalls(List<Wall> walls) {
+    public void setWalls(List<WallPlacement> walls) {
         this.walls = walls;
     }
     
+    @Override
+    public String toString() {
+        return "Room [name=" + name + ", dimensions=" + dimensions + ", ceiling=" + ceiling + ", floor=" + floor
+                + ", doors=" + doors + ", windows=" + windows + ", walls=" + walls + "]";
+    }
 }

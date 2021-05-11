@@ -20,7 +20,12 @@ import com.boothby.design.patterns.model.Tile;
 import com.boothby.design.patterns.model.TileFloor;
 import com.boothby.design.patterns.model.TileFloor.TileType;
 import com.boothby.design.patterns.model.Wall;
-import com.boothby.design.patterns.model.Wall.WallLocation;
+import com.boothby.design.patterns.model.WallPlacement;
+import com.boothby.design.patterns.model.WallPlacement.WallLocation;
+import com.boothby.design.patterns.model.Window;
+import com.boothby.design.patterns.model.Window.WindowType;
+import com.boothby.design.patterns.model.WindowPlacement;
+import com.boothby.design.patterns.model.WindowPlacement.WindowLocation;
 
 /**
  * Builder (fluent) design pattern. Creates an initialized room.
@@ -51,7 +56,7 @@ public class RoomBuilder {
         return this;
     }
 
-    public RoomBuilder width(float widthFt) {
+    public RoomBuilder roomWidth(float widthFt) {
         if (widthFt <= 0) {
             throw new RuntimeException("Room width must be greater than 0 feet.");
         }
@@ -59,7 +64,7 @@ public class RoomBuilder {
         return this;
     }
 
-    public RoomBuilder height(float heightFt) {
+    public RoomBuilder roomHeight(float heightFt) {
         if (heightFt <= 0) {
             throw new RuntimeException("Room height must be greater than 0 feet.");
         }
@@ -67,7 +72,7 @@ public class RoomBuilder {
         return this;
     }
 
-    public RoomBuilder depth(float depthFt) {
+    public RoomBuilder roomDepth(float depthFt) {
         if (depthFt <= 0) {
             throw new RuntimeException("Rooom depth must be greater than 0 feet.");
         }
@@ -101,14 +106,32 @@ public class RoomBuilder {
         return this;
     }
 
-    public RoomBuilder wall(WallLocation wallLocation, float wallWidthFt, float wallHeightFt, float wallDepthFt) {
-        Wall wall = new Wall();
-        wall.setDimensions(new Dimensions(wallWidthFt, wallHeightFt, wallDepthFt));
-        wall.setLocation(wallLocation);
-        room.getWalls().add(wall);
+    public RoomBuilder window(WindowLocation windowLocation, WindowType windowType, float windowWidthFt, float windowHeightFt, String manufacturer) {
+        Window window = new Window();
+        window.setType(windowType);
+        window.setDimensions(new Dimensions(windowWidthFt, windowHeightFt, 0));
+        window.setManufacturer(manufacturer);
+        
+        WindowPlacement placement = new WindowPlacement();
+        placement.setWindow(window);
+        placement.setWindowLocation(windowLocation);
+        room.getWindows().add(placement);
+        
         return this;
     }
 
+    public RoomBuilder wall(WallLocation wallLocation, String paintColor) {
+        Wall wall = new Wall();
+        wall.setPaintColor(paintColor);
+        
+        WallPlacement placement = new WallPlacement();
+        placement.setWall(wall);
+        placement.setWallLocation(wallLocation);
+        room.getWalls().add(placement);
+        
+        return this;
+    }
+    
     public RoomBuilder floorManufacturer(String manufacturer) {
         if (room.getFloor() != null) {
             room.getFloor().setManufacturer(manufacturer);
@@ -122,17 +145,9 @@ public class RoomBuilder {
      * TILE FLOORING
      *************************************************************************/
 
-    public RoomBuilder tileFloor() {
+    public RoomBuilder tileFloor(TileType type) {
         room.setFloor(new TileFloor());
-        return this;
-    }
-
-    public RoomBuilder tileFloorType(TileType type) {
-        if (room.getFloor() != null && room.getFloor() instanceof TileFloor) {
-            ((TileFloor) (room.getFloor())).setType(type);
-        } else {
-            throw new RuntimeException("Invalid floor type.");
-        }
+        ((TileFloor)(room.getFloor())).setType(type);
         return this;
     }
 
@@ -161,30 +176,31 @@ public class RoomBuilder {
      * HARDWOOD FLOORING
      *************************************************************************/
 
-    public RoomBuilder hardwoodFloor() {
+    public RoomBuilder hardwoodFloor(WoodType woodType) {
         room.setFloor(new HardwoodFloor());
+        ((HardwoodFloor) (room.getFloor())).setType(woodType);
         return this;
     }
 
-    public RoomBuilder hardwoodFloorType(WoodType woodType) {
+    public RoomBuilder hardwoodFloorPreFinished() {
         if (room.getFloor() != null && room.getFloor() instanceof HardwoodFloor) {
-            ((HardwoodFloor) (room.getFloor())).setType(woodType);
+            ((HardwoodFloor) (room.getFloor())).setPreFinished(true);
         } else {
             throw new RuntimeException("Invalid floor type.");
         }
         return this;
     }
 
-    public RoomBuilder hardwoodFloorPreFinished(boolean preFinished) {
+    public RoomBuilder hardwoodFloorPostFinished() {
         if (room.getFloor() != null && room.getFloor() instanceof HardwoodFloor) {
-            ((HardwoodFloor) (room.getFloor())).setPreFinished(preFinished);
+            ((HardwoodFloor) (room.getFloor())).setPreFinished(false);
         } else {
             throw new RuntimeException("Invalid floor type.");
         }
         return this;
     }
 
-    public RoomBuilder floorBoards(int numBoards, float boardDepthFt, int boardWidthFt) {
+    public RoomBuilder hardwood(int numBoards, float boardDepthFt, float boardWidthFt) {
         if (room.getFloor() != null && room.getFloor() instanceof HardwoodFloor) {
             for (int i = 0; i < numBoards; i++) {
                 FloorBoard floorBoard = new FloorBoard(new Dimensions(boardWidthFt, 0, boardDepthFt));
@@ -200,21 +216,13 @@ public class RoomBuilder {
      * CARPET FLOORING
      *************************************************************************/
 
-    public RoomBuilder carpetFloor() {
+    public RoomBuilder carpetFloor(CarpetType carpetType) {
         room.setFloor(new CarpetFloor());
+        ((CarpetFloor) room.getFloor()).setType(carpetType);
         return this;
     }
 
-    public RoomBuilder carpetType(CarpetType carpetType) {
-        if (room.getFloor() != null && room.getFloor() instanceof CarpetFloor) {
-            ((CarpetFloor) room.getFloor()).setType(carpetType);
-        } else {
-            throw new RuntimeException("Invalid floor type.");
-        }
-        return this;
-    }
-
-    public RoomBuilder floorCarpeting(int numPieces, float carpetDepthFt, float carpetWidthFt) {
+    public RoomBuilder carpeting(int numPieces, float carpetDepthFt, float carpetWidthFt) {
         if (room.getFloor() != null && room.getFloor() instanceof CarpetFloor) {
             for (int i = 0; i < numPieces; i++) {
                 Carpet carpet = new Carpet(new Dimensions(carpetWidthFt, 0, carpetDepthFt));

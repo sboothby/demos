@@ -44,4 +44,10 @@ public class Door {
     public void setColor(String color) {
         this.color = color;
     }
+
+    @Override
+    public String toString() {
+        return "Door [type=" + type + ", dimensions=" + dimensions + ", color=" + color + ", manufacturer="
+                + manufacturer + "]";
+    }
 }

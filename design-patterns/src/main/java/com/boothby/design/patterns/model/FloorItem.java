@@ -15,4 +15,9 @@ public abstract class FloorItem {
     public void setItemDimensions(Dimensions itemDimensions) {
         this.itemDimensions = itemDimensions;
     }
+
+    @Override
+    public String toString() {
+        return "FloorItem [itemDimensions=" + itemDimensions + "]";
+    }
 }

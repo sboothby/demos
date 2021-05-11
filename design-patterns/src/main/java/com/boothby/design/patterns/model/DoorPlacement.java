@@ -24,4 +24,9 @@ public class DoorPlacement {
     public void setDoorLocation(DoorLocation doorLocation) {
         this.doorLocation = doorLocation;
     }
+
+    @Override
+    public String toString() {
+        return "DoorPlacement [door=" + door + ", doorLocation=" + doorLocation + "]";
+    }
 }

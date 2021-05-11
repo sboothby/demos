@@ -24,4 +24,9 @@ public class Ceiling {
     public void setColor(String color) {
         this.color = color;
     }
+
+    @Override
+    public String toString() {
+        return "Ceiling [type=" + type + ", color=" + color + "]";
+    }
 }

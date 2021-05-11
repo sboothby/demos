@@ -1,27 +1,19 @@
 package com.boothby.design.patterns.model;
 
 public class Wall {
+    
+    private String paintColor;
 
-    public enum WallLocation {
-        FRONT, BACK, RIGHT, LEFT
-    };
-
-    private WallLocation location;
-    private Dimensions dimensions;
-
-    public WallLocation getLocation() {
-        return location;
+    public String getPaintColor() {
+        return paintColor;
     }
 
-    public void setLocation(WallLocation location) {
-        this.location = location;
+    public void setPaintColor(String paintColor) {
+        this.paintColor = paintColor;
     }
 
-    public Dimensions getDimensions() {
-        return dimensions;
-    }
-
-    public void setDimensions(Dimensions dimensions) {
-        this.dimensions = dimensions;
+    @Override
+    public String toString() {
+        return "Wall [paintColor=" + paintColor + "]";
     }
 }

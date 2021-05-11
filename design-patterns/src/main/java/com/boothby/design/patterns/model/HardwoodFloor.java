@@ -27,4 +27,9 @@ public class HardwoodFloor extends AbstractFloor {
     public void setType(WoodType type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "HardwoodFloor [type=" + type + ", preFinished=" + preFinished + "]";
+    }
 }

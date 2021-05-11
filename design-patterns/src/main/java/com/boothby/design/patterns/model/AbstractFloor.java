@@ -35,4 +35,9 @@ public abstract class AbstractFloor {
         }
         return floorSquareFt;
     }
+
+    @Override
+    public String toString() {
+        return "AbstractFloor [floorItems=" + floorItems + ", manufacturer=" + manufacturer + "]";
+    }
 }

@@ -38,4 +38,9 @@ public class Dimensions {
     public void setDepthFt(float depthFt) {
         this.depthFt = depthFt;
     }
+
+    @Override
+    public String toString() {
+        return "Dimensions [widthFt=" + widthFt + ", heightFt=" + heightFt + ", depthFt=" + depthFt + "]";
+    }
 }

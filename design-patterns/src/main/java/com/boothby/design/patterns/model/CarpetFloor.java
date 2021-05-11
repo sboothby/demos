@@ -17,4 +17,9 @@ public class CarpetFloor extends AbstractFloor {
     public void setType(CarpetType type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "CarpetFloor [type=" + type + "]";
+    }
 }

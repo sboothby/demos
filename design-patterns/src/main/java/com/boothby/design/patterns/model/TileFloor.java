@@ -24,4 +24,9 @@ public class TileFloor extends AbstractFloor {
     public void setType(TileType type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "TileFloor [tileColor=" + tileColor + ", type=" + type + "]";
+    }
 }
