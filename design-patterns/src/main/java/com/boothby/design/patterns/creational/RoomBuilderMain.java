@@ -4,16 +4,22 @@ import com.boothby.design.patterns.model.Ceiling.CeilingType;
 import com.boothby.design.patterns.model.Door.DoorType;
 import com.boothby.design.patterns.model.DoorPlacement.DoorLocation;
 import com.boothby.design.patterns.model.HardwoodFloor.WoodType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.boothby.design.patterns.model.Room;
 import com.boothby.design.patterns.model.CarpetFloor.CarpetType;
 import com.boothby.design.patterns.model.WallPlacement.WallLocation;
 
 public class RoomBuilderMain {
 
+    private static final Logger logger = LoggerFactory.getLogger(RoomBuilderMain.class);
+    
     public static void main(String[] args) {
 
         Room diningRoom = new RoomBuilder()
-            .name("Dining Room")
+            .name("Dining")
             .roomDepth(10)
             .roomHeight(8)
             .roomWidth(12)
@@ -30,10 +36,10 @@ public class RoomBuilderMain {
             .door(DoorLocation.BACK_CENTER, DoorType.WOOD, 3, 7, 4, "white", "ACME Doors")
             .door(DoorLocation.FRONT_CENTER, DoorType.WOOD, 3, 7, 4, "white", "ACME Doors")
             .build();
-        System.out.print(String.format("Dining room: \n%s", diningRoom.toString()));
-        
+        logger.info("{} {}", diningRoom.getName(), diningRoom.toString());
+        logger.info("");
         Room livingRoom = new RoomBuilder()
-                .name("Living Room")
+                .name("Living")
                 .roomDepth(12)
                 .roomHeight(10)
                 .roomWidth(14)
@@ -47,6 +53,6 @@ public class RoomBuilderMain {
                 .wall(WallLocation.RIGHT, "white")
                 .door(DoorLocation.BACK_CENTER, DoorType.GLASS, 3, 7, 4, "white", "ACME Doors")
                 .build();
-        System.out.print(String.format("\n\nLiving room: \n%s", livingRoom.toString()));
+        logger.info("{} {}", livingRoom.getName(), livingRoom.toString());
     }
 }
