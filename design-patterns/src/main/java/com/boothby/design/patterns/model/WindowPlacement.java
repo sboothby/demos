@@ -6,14 +6,14 @@ public class WindowPlacement {
         FRONT_CENTER, RIGHT_CENTER, BACK_CENTER, LEFT_CENTER
     }
 
-    private Window window;
+    private WindowImpl window;
     private WindowLocation windowLocation;
 
-    public Window getWindow() {
+    public WindowImpl getWindow() {
         return window;
     }
 
-    public void setWindow(Window window) {
+    public void setWindow(WindowImpl window) {
         this.window = window;
     }
 

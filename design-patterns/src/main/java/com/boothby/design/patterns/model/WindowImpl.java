@@ -1,6 +1,13 @@
 package com.boothby.design.patterns.model;
 
-public class Window {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.boothby.design.patterns.structural.Window;
+
+public class WindowImpl implements Window {
+    
+    private static final Logger logger = LoggerFactory.getLogger(WindowImpl.class);
     
     public enum WindowType {
         DOUBLE_HUNG,
@@ -13,6 +20,12 @@ public class Window {
     private Dimensions dimensions;
     private String manufacturer;
 
+    public WindowImpl(WindowType type, Dimensions dimensions, String manufacturer) {
+        this.type = type;
+        this.dimensions = dimensions;
+        this.manufacturer = manufacturer;
+    }
+    
     public WindowType getType() {
         return type;
     }
@@ -35,5 +48,11 @@ public class Window {
 
     public void setManufacturer(String manufacturer) {
         this.manufacturer = manufacturer;
+    }
+
+    @Override
+    public String decorate() {
+        logger.info("decorating...");
+        return "decorating window";
     }
 }

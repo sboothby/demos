@@ -22,8 +22,8 @@ import com.boothby.design.patterns.model.TileFloor.TileType;
 import com.boothby.design.patterns.model.Wall;
 import com.boothby.design.patterns.model.WallPlacement;
 import com.boothby.design.patterns.model.WallPlacement.WallLocation;
-import com.boothby.design.patterns.model.Window;
-import com.boothby.design.patterns.model.Window.WindowType;
+import com.boothby.design.patterns.model.WindowImpl;
+import com.boothby.design.patterns.model.WindowImpl.WindowType;
 import com.boothby.design.patterns.model.WindowPlacement;
 import com.boothby.design.patterns.model.WindowPlacement.WindowLocation;
 
@@ -107,7 +107,7 @@ public class RoomBuilder {
     }
 
     public RoomBuilder window(WindowLocation windowLocation, WindowType windowType, float windowWidthFt, float windowHeightFt, String manufacturer) {
-        Window window = new Window();
+        WindowImpl window = new WindowImpl();
         window.setType(windowType);
         window.setDimensions(new Dimensions(windowWidthFt, windowHeightFt, 0));
         window.setManufacturer(manufacturer);
