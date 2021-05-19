@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.boothby.design.patterns.model.AbstractFloor;
 import com.boothby.design.patterns.model.CeilingMaterials;
+import com.boothby.design.patterns.model.ConstructionMaterials;
+import com.boothby.design.patterns.model.CostEstimator;
 import com.boothby.design.patterns.model.Dimensions;
 import com.boothby.design.patterns.model.Door;
 import com.boothby.design.patterns.model.DoorKnob;
@@ -27,6 +29,9 @@ import com.boothby.design.patterns.structural.MaterialSetCreator.MaterialCreator
 
 public class ConstructionFacade {
 
+    private static final float SHIPPING_COSTS = 500.0f;
+    private static final float LOCAL_TAX_RATE = .06f;
+    
     public enum FloorType {
         HARDWOOD,
         TILE
@@ -65,12 +70,16 @@ public class ConstructionFacade {
         CeilingMaterials ceilingMaterials = createCeilingMaterials(roomWidth, roomLength);
         WallMaterials wallMaterials = createWallMaterials(roomWidth, roomLength);
         
-        float estimate = 
-                doorMaterials.getCost(materialSource) +
-                windowMaterials.getCost(materialSource) + 
-                floorMaterials.getCost(materialSource) + 
-                ceilingMaterials.getCost(materialSource) +
-                wallMaterials.getCost(materialSource);
+        ConstructionMaterials constructionMaterials = new ConstructionMaterials(
+                doorMaterials, windowMaterials, floorMaterials, ceilingMaterials, wallMaterials);
+        
+        CostEstimator costEstimator = new CostEstimator(SHIPPING_COSTS, LOCAL_TAX_RATE);
+        float estimate = 0.0f;
+        if (materialSource == MaterialSource.RETAIL) {
+            estimate = costEstimator.getRetailCostEstimate(constructionMaterials);
+        } else if (materialSource == MaterialSource.WHOLESALE) {
+            estimate = costEstimator.getWholesaleCostEstimate(constructionMaterials);
+        }
         
         return estimate;
     }

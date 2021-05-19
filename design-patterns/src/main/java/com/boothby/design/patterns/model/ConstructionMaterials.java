@@ -8,6 +8,18 @@ public class ConstructionMaterials {
     private CeilingMaterials ceilingMaterials;
     private WallMaterials wallMaterials;
 
+    public ConstructionMaterials(DoorMaterials doorMaterials,
+            WindowMaterials windowMaterials,
+            FloorMaterials floorMaterials,
+            CeilingMaterials ceilingMaterials,
+            WallMaterials wallMaterials) {
+        this.doorMaterials = doorMaterials;
+        this.windowMaterials = windowMaterials;
+        this.floorMaterials = floorMaterials;
+        this.ceilingMaterials = ceilingMaterials;
+        this.wallMaterials = wallMaterials;
+    }
+    
     public DoorMaterials getDoorMaterials() {
         return doorMaterials;
     }
