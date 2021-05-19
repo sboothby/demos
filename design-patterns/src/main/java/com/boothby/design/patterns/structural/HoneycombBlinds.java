@@ -6,11 +6,11 @@ public class HoneycombBlinds extends WindowDecorator {
         super(window);
     }
 
-    public String decorate() {
-        return super.decorate() + decorateWithHoneycombBlinds();
+    public String render() {
+        return super.render() + renderWithHoneycombBlinds();
     }
  
-    private String decorateWithHoneycombBlinds() {
+    private String renderWithHoneycombBlinds() {
         return " with honeycomb blinds";
     }
 }

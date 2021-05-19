@@ -6,11 +6,11 @@ public class LowProfileCasing extends WindowDecorator {
         super(window);
     }
 
-    public String decorate() {
-        return super.decorate() + decorateWithLowProfileCasing();
+    public String render() {
+        return super.render() + renderWithLowProfileCasing();
     }
  
-    private String decorateWithLowProfileCasing() {
+    private String renderWithLowProfileCasing() {
         return " with low profile casing";
     }
 }

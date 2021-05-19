@@ -51,8 +51,8 @@ public class WindowImpl implements Window {
     }
 
     @Override
-    public String decorate() {
-        logger.info("decorating...");
-        return "decorating window";
+    public String render() {
+        logger.info("rendering base window...");
+        return "rendering base window";
     }
 }

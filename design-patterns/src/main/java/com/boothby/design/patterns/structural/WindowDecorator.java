@@ -14,9 +14,9 @@ public abstract class WindowDecorator implements Window {
     }
     
     @Override
-    public String decorate() {
-        logger.info("decorating...");
-        return window.decorate();
+    public String render() {
+        logger.info("rendering window...");
+        return window.render();
     }
 }
 

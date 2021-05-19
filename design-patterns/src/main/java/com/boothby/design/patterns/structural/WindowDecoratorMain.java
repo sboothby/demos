@@ -7,9 +7,9 @@ import com.boothby.design.patterns.model.Dimensions;
 import com.boothby.design.patterns.model.WindowImpl;
 import com.boothby.design.patterns.model.WindowImpl.WindowType;
 
-public class DecoratorMain {
+public class WindowDecoratorMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(DecoratorMain.class);
+    private static final Logger logger = LoggerFactory.getLogger(WindowDecoratorMain.class);
 
     public static void main(String[] args) {
 
@@ -24,7 +24,7 @@ public class DecoratorMain {
                                 )
                         )
                 );
-        String frontYardWindowResult = frontYardWindow.decorate();
+        String frontYardWindowResult = frontYardWindow.render();
         logger.info(frontYardWindowResult);
         
         // Create another type of window with it's features.  Note the original code is unchanged (WindowImpl).
@@ -35,7 +35,7 @@ public class DecoratorMain {
                                     )
                             )
                     );
-        String backyardWindowResult = kitchenWindow.decorate();
+        String backyardWindowResult = kitchenWindow.render();
         logger.info(backyardWindowResult);
     }
 }

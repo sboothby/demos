@@ -6,11 +6,11 @@ public class AluminumHandle extends WindowDecorator {
         super(window);
     }
     
-    public String decorate() {
-        return super.decorate() + decorateWithAluminumHandle();
+    public String render() {
+        return super.render() + renderWithAluminumHandle();
     }
  
-    private String decorateWithAluminumHandle() {
+    private String renderWithAluminumHandle() {
         return " with aluminum handle";
     }
 }

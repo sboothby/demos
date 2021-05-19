@@ -6,11 +6,11 @@ public class ModernCasing extends WindowDecorator {
         super(window);
     }
 
-    public String decorate() {
-        return super.decorate() + decorateWithModernCasing();
+    public String render() {
+        return super.render() + renderWithModernCasing();
     }
  
-    private String decorateWithModernCasing() {
+    private String renderWithModernCasing() {
         return " with modern casing";
     }
 }

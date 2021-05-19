@@ -6,11 +6,11 @@ public class PlasticHandle extends WindowDecorator {
         super(window);
     }
 
-    public String decorate() {
-        return super.decorate() + decorateWithPlasticHandle();
+    public String render() {
+        return super.render() + renderWithPlasticHandle();
     }
  
-    private String decorateWithPlasticHandle() {
+    private String renderWithPlasticHandle() {
         return " with plastic handle";
     }
 }

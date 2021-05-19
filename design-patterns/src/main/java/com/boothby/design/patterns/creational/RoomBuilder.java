@@ -106,11 +106,9 @@ public class RoomBuilder {
         return this;
     }
 
-    public RoomBuilder window(WindowLocation windowLocation, WindowType windowType, float windowWidthFt, float windowHeightFt, String manufacturer) {
-        WindowImpl window = new WindowImpl();
-        window.setType(windowType);
-        window.setDimensions(new Dimensions(windowWidthFt, windowHeightFt, 0));
-        window.setManufacturer(manufacturer);
+    public RoomBuilder window(WindowLocation windowLocation, WindowType windowType, float windowWidthFt, 
+            float windowHeightFt, String manufacturer) {
+        WindowImpl window = new WindowImpl(windowType, new Dimensions(windowWidthFt, windowHeightFt, 0), manufacturer);
         
         WindowPlacement placement = new WindowPlacement();
         placement.setWindow(window);

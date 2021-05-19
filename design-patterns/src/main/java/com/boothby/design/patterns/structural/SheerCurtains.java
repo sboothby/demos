@@ -6,11 +6,11 @@ public class SheerCurtains extends WindowDecorator {
         super(window);
     }
 
-    public String decorate() {
-        return super.decorate() + decorateWithSheerCurtain();
+    public String render() {
+        return super.render() + renderWithSheerCurtain();
     }
  
-    private String decorateWithSheerCurtain() {
+    private String renderWithSheerCurtain() {
         return " with sheer curtain";
     }
 }
