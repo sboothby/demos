@@ -36,6 +36,8 @@ public abstract class AbstractFloor {
         return floorSquareFt;
     }
 
+    public abstract float getCost();
+    
     @Override
     public String toString() {
         return "AbstractFloor [floorItems=" + floorItems + ", manufacturer=" + manufacturer + "]";

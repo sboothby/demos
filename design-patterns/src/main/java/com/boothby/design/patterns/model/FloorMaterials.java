@@ -19,7 +19,7 @@ public class FloorMaterials implements MaterialCost {
     @Override
     public float getCost(MaterialSource materialSource) {
         //TODO do better with costing out the materials!
-        return 100.0f +     // cost of the floor!
+        return floor.getCost() +
                paints.size() * 10.0f +
                floorTrims.size() * 7.0f + 
                10.0f;       // cost of the subfloor!

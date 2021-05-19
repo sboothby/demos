@@ -27,7 +27,7 @@ public class CostEstimator {
 
         estimate += shippingCosts;
 
-        estimate *= localTaxRate;
+        estimate = estimate + (estimate * localTaxRate);
 
         return estimate;
     }

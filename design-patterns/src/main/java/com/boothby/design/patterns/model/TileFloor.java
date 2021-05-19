@@ -36,4 +36,9 @@ public class TileFloor extends AbstractFloor {
     public String toString() {
         return "TileFloor [tileColor=" + tileColor + ", type=" + type + "]";
     }
+
+    @Override
+    public float getCost() {
+        return 1000.0f; //TODO refine this based on flooring
+    }
 }

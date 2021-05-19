@@ -40,4 +40,9 @@ public class HardwoodFloor extends AbstractFloor {
     public String toString() {
         return "HardwoodFloor [type=" + type + ", preFinished=" + preFinished + "]";
     }
+
+    @Override
+    public float getCost() {
+        return 2000.0f; //TODO refine this based on flooring
+    }
 }

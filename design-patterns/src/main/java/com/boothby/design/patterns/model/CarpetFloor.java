@@ -22,4 +22,10 @@ public class CarpetFloor extends AbstractFloor {
     public String toString() {
         return "CarpetFloor [type=" + type + "]";
     }
+
+    @Override
+    public float getCost() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 }
