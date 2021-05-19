@@ -12,6 +12,14 @@ public class HardwoodFloor extends AbstractFloor {
     private WoodType type;
     private boolean preFinished;
     
+    public HardwoodFloor() {}
+    
+    public HardwoodFloor(WoodType woodType, boolean preFinished) {
+        super();
+        this.type = woodType;
+        this.preFinished = preFinished;
+    }
+    
     public boolean isPreFinished() {
         return preFinished;
     }

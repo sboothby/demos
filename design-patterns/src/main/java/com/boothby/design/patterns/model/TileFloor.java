@@ -9,6 +9,13 @@ public class TileFloor extends AbstractFloor {
     private String tileColor;
     private TileType type;
 
+    public TileFloor() {}
+    
+    public TileFloor(String tileColor, TileType tileType) {
+        this.tileColor = tileColor;
+        this.type = tileType;
+    }
+    
     public String getTileColor() {
         return tileColor;
     }
