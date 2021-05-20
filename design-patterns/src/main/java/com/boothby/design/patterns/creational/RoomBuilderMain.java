@@ -18,6 +18,9 @@ public class RoomBuilderMain {
     
     public static void main(String[] args) {
 
+        /**
+         * Create a room
+         */
         Room diningRoom = new RoomBuilder()
             .name("Dining")
             .roomDepth(10)
@@ -38,6 +41,10 @@ public class RoomBuilderMain {
             .build();
         logger.info("{} {}", diningRoom.getName(), diningRoom.toString());
         logger.info("");
+
+        /**
+         * Create another room
+         */
         Room livingRoom = new RoomBuilder()
                 .name("Living")
                 .roomDepth(12)

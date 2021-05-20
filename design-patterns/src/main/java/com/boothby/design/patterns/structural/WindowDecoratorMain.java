@@ -15,6 +15,7 @@ public class WindowDecoratorMain {
 
         /**
          * Create several types of window with distinct features. Note in each case, the original code WindowImpl is unchanged.
+         * Each decorator adds additional features to the window, finally rendering the complete window.
          */
         
         Window frontYardWindow = new PlasticHandle(

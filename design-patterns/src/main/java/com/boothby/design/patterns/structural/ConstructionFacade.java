@@ -53,7 +53,18 @@ public class ConstructionFacade {
     };
     MaterialSetCreator<Drywall> drywallSetCreator = new MaterialSetCreator<>(drywallCreator);
 
-    public float estimateRoomConstructionCosts(MaterialSource materialSource,
+    /**
+     * This is the Facade method. It presents a high-level interface into the complex set of objects
+     * required to find the (materials) cost of the desired configured room.
+     * @param materialSource retail | wholesale
+     * @param numDoors how many doors
+     * @param numWindows how many windows
+     * @param roomWidth width of room
+     * @param roomLength length of room
+     * @param floorType what kind of flooring
+     * @return estimate cost of the room for materials only
+     */
+    public float estimateRoomMaterialConstructionCosts(MaterialSource materialSource,
                                                    int numDoors,
                                                    int numWindows,
                                                    float roomWidth,

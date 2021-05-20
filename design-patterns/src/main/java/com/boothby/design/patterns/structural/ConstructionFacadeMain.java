@@ -19,7 +19,7 @@ public class ConstructionFacadeMain {
         
         logger.info("Build a room with a hardwood floor...");
         float hardwoodRoomTotalMaterialCosts =
-                constructionFacade.estimateRoomConstructionCosts(
+                constructionFacade.estimateRoomMaterialConstructionCosts(
                     MaterialSource.WHOLESALE, 
                     2,              // # doors  
                     4,              // # windows 
@@ -28,14 +28,16 @@ public class ConstructionFacadeMain {
                     FloorType.HARDWOOD);
         logger.info("It will cost ${} to build your hardwood floor room.", hardwoodRoomTotalMaterialCosts);
 
+        logger.info("*****");
+
         logger.info("Build a room with a tile floor...");
         float tileRoomTotalMaterialCosts = 
-                constructionFacade.estimateRoomConstructionCosts(
+                constructionFacade.estimateRoomMaterialConstructionCosts(
                         MaterialSource.WHOLESALE,
-                        2,
-                        4,
-                        12,
-                        16,
+                        2,          // # doors  
+                        4,          // # windows 
+                        12,         // roomWidth 
+                        16,         // roomLength
                         FloorType.TILE);
         logger.info("It will cost ${} to build your tile floor room.", tileRoomTotalMaterialCosts);
     }
