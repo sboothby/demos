@@ -7,9 +7,6 @@
   <name>demos-parent</name>
 
   <modules>
-    <module>vauto-challenge</module>
-    <module>ddc-interview</module>
-    <module>car-rental-api</module>
     <module>design-patterns</module>
   </modules>
 
