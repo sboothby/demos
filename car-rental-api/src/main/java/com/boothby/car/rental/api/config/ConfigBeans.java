@@ -13,6 +13,8 @@ import com.boothby.car.rental.api.core.impl.DefaultDriverHistoryService;
 import com.boothby.car.rental.api.core.impl.DefaultInsuranceBinderService;
 import com.boothby.car.rental.api.core.impl.DefaultRentalAgreementService;
 import com.boothby.car.rental.api.core.impl.DefaultRentalService;
+import com.boothby.car.rental.api.ports.rental_repository.RentalRepository;
+import com.boothby.car.rental.api.ports.rental_repository.dynamo.DynamoRentalRepository;
 
 /**
  * Performs Spring DI of beans.  Does any custom bean setup.  Loosely-coupled shared beans are centrally initialized
@@ -37,8 +39,13 @@ public class ConfigBeans {
     }
     
     @Bean
-    public RentalAgreementService rentalAgreementService() {
-        return new DefaultRentalAgreementService();
+    public RentalAgreementService rentalAgreementService(RentalRepository rentalRepository) {
+        return new DefaultRentalAgreementService(rentalRepository);
+    }
+    
+    @Bean
+    RentalRepository rentalRepository() {
+        return new DynamoRentalRepository();
     }
     
     @Bean
