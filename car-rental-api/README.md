@@ -1,6 +1,6 @@
 # Car Rental API
 An example Spring Boot API for renting vehicles.  The following are demonstrated:
-* Spring MVC Rest endpoints (Controller)
+* Spring MVC Rest endpoints with exception handling (Controller)
 * Configuration beans (DI)
 * Service business logic beans
 * Unit tests with mocking techniques
