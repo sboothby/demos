@@ -3,18 +3,18 @@ package com.boothby.car.rental.api.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.boothby.car.rental.api.core.CarLocatorService;
-import com.boothby.car.rental.api.core.DriverHistoryService;
-import com.boothby.car.rental.api.core.InsuranceBinderService;
-import com.boothby.car.rental.api.core.RentalAgreementService;
-import com.boothby.car.rental.api.core.RentalService;
-import com.boothby.car.rental.api.core.impl.DefaultCarLocatorService;
-import com.boothby.car.rental.api.core.impl.DefaultDriverHistoryService;
-import com.boothby.car.rental.api.core.impl.DefaultInsuranceBinderService;
-import com.boothby.car.rental.api.core.impl.DefaultRentalAgreementService;
-import com.boothby.car.rental.api.core.impl.DefaultRentalService;
-import com.boothby.car.rental.api.ports.rental_repository.RentalRepository;
-import com.boothby.car.rental.api.ports.rental_repository.dynamo.DynamoRentalRepository;
+import com.boothby.car.rental.api.repository.DynamoRentalRepository;
+import com.boothby.car.rental.api.repository.RentalRepository;
+import com.boothby.car.rental.api.service.CarLocatorService;
+import com.boothby.car.rental.api.service.DefaultCarLocatorService;
+import com.boothby.car.rental.api.service.DefaultDriverHistoryService;
+import com.boothby.car.rental.api.service.DefaultInsuranceBinderService;
+import com.boothby.car.rental.api.service.DefaultRentalAgreementService;
+import com.boothby.car.rental.api.service.DefaultRentalService;
+import com.boothby.car.rental.api.service.DriverHistoryService;
+import com.boothby.car.rental.api.service.InsuranceBinderService;
+import com.boothby.car.rental.api.service.RentalAgreementService;
+import com.boothby.car.rental.api.service.RentalService;
 
 /**
  * Performs Spring DI of beans.  Does any custom bean setup.  Loosely-coupled shared beans are centrally initialized

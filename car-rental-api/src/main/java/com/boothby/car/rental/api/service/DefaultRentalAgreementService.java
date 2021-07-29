@@ -1,14 +1,13 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.boothby.car.rental.api.core.RentalAgreementService;
 import com.boothby.car.rental.api.core.exception.RentalContractException;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;
 import com.boothby.car.rental.api.core.model.RentalContingencies;
 import com.boothby.car.rental.api.core.model.RentalContract;
-import com.boothby.car.rental.api.ports.rental_repository.RentalRepository;
+import com.boothby.car.rental.api.repository.RentalRepository;
 
 @Service("defaultRentalAgreementService")
 public class DefaultRentalAgreementService implements RentalAgreementService {

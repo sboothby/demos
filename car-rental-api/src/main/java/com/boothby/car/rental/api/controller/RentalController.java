@@ -1,4 +1,4 @@
-package com.boothby.car.rental.api.drivers.rest.controllers;
+package com.boothby.car.rental.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.boothby.car.rental.api.core.RentalService;
 import com.boothby.car.rental.api.core.exception.CarNotFoundException;
 import com.boothby.car.rental.api.core.exception.DriverException;
 import com.boothby.car.rental.api.core.exception.InsuranceException;
@@ -16,6 +15,7 @@ import com.boothby.car.rental.api.core.exception.RentalContractException;
 import com.boothby.car.rental.api.core.exception.RentalValidationException;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;
 import com.boothby.car.rental.api.core.model.RentalContract;
+import com.boothby.car.rental.api.service.RentalService;
 
 @RestController
 public class RentalController {

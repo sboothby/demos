@@ -1,8 +1,7 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
 import org.springframework.stereotype.Service;
 
-import com.boothby.car.rental.api.core.InsuranceBinderService;
 import com.boothby.car.rental.api.core.exception.InsuranceException;
 import com.boothby.car.rental.api.core.model.InsuranceBinder;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;

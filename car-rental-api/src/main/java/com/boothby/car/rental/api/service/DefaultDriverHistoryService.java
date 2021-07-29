@@ -1,8 +1,7 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
 import org.springframework.stereotype.Service;
 
-import com.boothby.car.rental.api.core.DriverHistoryService;
 import com.boothby.car.rental.api.core.exception.DriverException;
 import com.boothby.car.rental.api.core.model.DriverInfo;
 

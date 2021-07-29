@@ -1,22 +1,24 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.boothby.car.rental.api.core.CarLocatorService;
-import com.boothby.car.rental.api.core.DriverHistoryService;
-import com.boothby.car.rental.api.core.InsuranceBinderService;
-import com.boothby.car.rental.api.core.RentalAgreementService;
-import com.boothby.car.rental.api.core.RentalService;
 import com.boothby.car.rental.api.core.exception.CarNotFoundException;
 import com.boothby.car.rental.api.core.exception.DriverException;
 import com.boothby.car.rental.api.core.exception.InsuranceException;
@@ -29,7 +31,7 @@ import com.boothby.car.rental.api.core.model.RentalCarRequest;
 import com.boothby.car.rental.api.core.model.RentalContingencies;
 import com.boothby.car.rental.api.core.model.RentalContract;
 import com.boothby.car.rental.api.core.model.VehicleClass;
-import com.boothby.car.rental.api.utility.RentalModelBuilder;
+import com.boothby.car.rental.api.util.RentalModelBuilder;
 
 public class DefaultRentalServiceTest {
 
@@ -91,7 +93,7 @@ public class DefaultRentalServiceTest {
 	* Verifies car is rented and reserved through a rental agreement, accepting default insurance for the term of the rental.
 	*/ 
 	@Test
-	public void should_ReserveCar_For_ValidRentalRequestWithDefaultInsurance() throws Exception {
+	public void should_reserveCar_for_rentalRequestWithDefaultInsurance() throws Exception {
 		// Mock dependent bean calls. These are the calls made from beans within DefaultRentalService.rentCar, that will return default test values,
 		// or take no adverse action, etc.
 		testRentalCarRequest.setDriverProvidedInsurance(null);
@@ -100,10 +102,12 @@ public class DefaultRentalServiceTest {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(testContingencies.getDriverScore());
 		when(carLocatorService.findRentalCar(any(RentalCarRequest.class), anyInt())).thenReturn(testIdentifiedCar);
 		when(rentalAgreementService.createContract(any(RentalCarRequest.class), any(RentalContingencies.class))).thenReturn(testContract);
+
 		// Used for dependent bean call verification of parameter.
 		ArgumentCaptor<RentalCarRequest> captor = ArgumentCaptor.forClass(RentalCarRequest.class);
 		// Invoke the class method under test, obtaining a contract, that we'll subsequently verify is correct.
 		RentalContract rentalContract = rentalService.rentCar(testRentalCarRequest);
+		
 		// A contract should have been returned.
 		assertNotNull(rentalContract);
 		// The contract returned should be the same contract we had mockito mock out in the RentalAgreementService.createContract call.
@@ -130,7 +134,7 @@ public class DefaultRentalServiceTest {
 	 * Verifies car is rented and reserved through a rental agreement, using insurance provided by the driver. 
 	 */
 	@Test
-	public void should_ReserveCar_For_ValidRentalRequestWithDriverProvidedInsurance() throws Exception {
+	public void should_reserveCar_for_rentalRequestWithDriverProvidedInsurance() throws Exception {
 		// Mock dependent bean calls. These are the calls made from beans within DefaultRentalService.rentCar, that will return default test values,
 		// or take no adverse action, etc.
 		doNothing().when(insuranceBinderService).checkDriverProvidedInsuranceCoverage(any(RentalCarRequest.class));
@@ -138,10 +142,12 @@ public class DefaultRentalServiceTest {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(testContingencies.getDriverScore());
 		when(carLocatorService.findRentalCar(any(RentalCarRequest.class), anyInt())).thenReturn(testIdentifiedCar);
 		when(rentalAgreementService.createContract(any(RentalCarRequest.class), any(RentalContingencies.class))).thenReturn(testContract);
+		
 		// Used for dependent bean call verification of parameter.
 		ArgumentCaptor<RentalCarRequest> captor = ArgumentCaptor.forClass(RentalCarRequest.class);
 		// Invoke the class method under test, obtaining a contract, that we'll subsequently verify is correct.
 		RentalContract rentalContract = rentalService.rentCar(testRentalCarRequest);
+		
 		// A contract should have been returned.
 		assertNotNull(rentalContract);
 		// The contract returned should be the same contract we had mockito mock out in the RentalAgreementService.createContract call.
@@ -168,119 +174,119 @@ public class DefaultRentalServiceTest {
 	 * SAD CASES - Car rental agreement NOT created
 	 ************************************************************************/
 	
-	/****
-	 * Rental request validation failure test cases
-	 */
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_When_RequestedDateInThePast() throws Exception {
+	public void should_throwException_when_requestedDateInThePast() throws Exception {
 		testRentalCarRequest.setStartDate(RentalModelBuilder.parseDate("6/15/2008"));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_When_RentalDaysGreaterThanLimit() throws Exception {
+	public void should_throwException_when_rentalDaysGreaterThanLimit() throws Exception {
 		testRentalCarRequest.setDurationDays(45);
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_When_CarSearchTooFarOut() throws Exception {
+	public void should_throwException_when_carSearchTooFarOut() throws Exception {
 		testRentalCarRequest.setSearchMilesOut(30);
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_When_MinimumDepositNotMet() throws Exception {
+	public void should_throwException_when_minimumDepositNotMet() throws Exception {
 		testRentalCarRequest.setDepositAmount(85.0f);
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_For_MissingFirstName() throws Exception {
+	public void should_throwException_when_missingFirstName() throws Exception {
 		testRentalCarRequest.getDriverInfo().setFirstName("");
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_For_MissingLastName() throws Exception {
+	public void should_throwException_when_missingLastName() throws Exception {
 		testRentalCarRequest.getDriverInfo().setLastName("");
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_For_MissingDriverLicense() throws Exception {
+	public void should_throwException_when_missingDriverLicense() throws Exception {
 		testRentalCarRequest.getDriverInfo().setDriverLicenseNumber("");
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_For_InactiveDriverInsurancePolicy() throws Exception {
+	public void should_throwException_when_driverInsurancePolicyInactive() throws Exception {
 		testRentalCarRequest.getDriverProvidedInsurance().setEndDateCoverage(RentalModelBuilder.parseDate("1/1/1987"));
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalValidationException.class)
-	public void should_ThrowException_When_MissingVehicleTypeDetails() throws Exception {
+	public void should_throwException_when_missingVehicleTypeDetails() throws Exception {
 		testRentalCarRequest.setMake("");
 		testRentalCarRequest.setModel("");
 		testRentalCarRequest.setVehicleClass(VehicleClass.UNKNOWN);
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
-	/** 
-	 * Rental business logic failure test cases
-	 */
 	@Test(expected = InsuranceException.class)
-	public void should_ThrowException_When_DefaultInsuranceNotAvailable() throws Exception {
+	public void should_throwException_when_defaultInsuranceNotAvailable() throws Exception {
 		testRentalCarRequest.setDriverProvidedInsurance(null);
 		doThrow(new InsuranceException("Default insurance not available!")).when(insuranceBinderService).getDefaultInsurance(any(RentalCarRequest.class));
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 
 	@Test(expected = InsuranceException.class)
-	public void should_ThrowException_When_DriverProvidedInsuranceInsufficientCoverage() throws Exception {
+	public void should_throwException_when_driverProvidedInsuranceHasInsufficientCoverage() throws Exception {
 		doThrow(new InsuranceException("Driver provided insurance was deemed insufficient coverage by rental agent insurance carrier!"))
 			.when(insuranceBinderService).checkDriverProvidedInsuranceCoverage(any(RentalCarRequest.class));
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = DriverException.class)
-	public void should_ThrowException_When_DriverLicenseNotVerified() throws Exception {
+	public void should_throwException_when_driverLicenseNotVerified() throws Exception {
 		doThrow(new DriverException("Unable to verify customer driver license with state DMV!"))
 			.when(driverHistoryService).verifyDriverLicense(any(DriverInfo.class));
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = DriverException.class)
-	public void should_ThrowException_When_DriverScoreNotObtainedFromDMV() throws Exception {
+	public void should_throwException_when_driverScoreNotObtainedFromDMV() throws Exception {
 		doThrow(new DriverException("Error obtaining driver score from state DMV! System down!"))
 			.when(driverHistoryService).getDriverScore(any(DriverInfo.class));
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 
 	@Test(expected = DriverException.class)
-	public void should_ThrowException_When_DriverScoreTooLow() throws Exception {
+	public void should_throwException_when_driverScoreTooLow() throws Exception {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(45.6f);
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = CarNotFoundException.class)
-	public void should_ThrowException_When_RentalCarNotFound() throws Exception {
+	public void should_throwException_when_rentalCarNotFound() throws Exception {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(85.0f);
 		doThrow(new CarNotFoundException("Car not found with customer specs in search radius!"))
 			.when(carLocatorService).findRentalCar(any(RentalCarRequest.class), anyInt());
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
 	@Test(expected = RentalContractException.class)
-	public void should_ThrowException_When_UnableToCreateContract() throws Exception {
+	public void should_throwException_when_unableToCreateContract() throws Exception {
 		when(driverHistoryService.getDriverScore(any(DriverInfo.class))).thenReturn(85.0f);
 		doThrow(new RentalContractException("Error creating rental agreement! System down!"))
 			.when(rentalAgreementService).createContract(any(RentalCarRequest.class), any(RentalContingencies.class));
+		
 		rentalService.rentCar(testRentalCarRequest);
 	}
 	
-	public static boolean isToday(Date date) {
+	private boolean isToday(Date date) {
 	    Calendar today = Calendar.getInstance();
 	    Calendar specifiedDate = Calendar.getInstance();
 	    specifiedDate.setTime(date);

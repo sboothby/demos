@@ -1,8 +1,7 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
 import org.springframework.stereotype.Service;
 
-import com.boothby.car.rental.api.core.CarLocatorService;
 import com.boothby.car.rental.api.core.exception.CarNotFoundException;
 import com.boothby.car.rental.api.core.model.RentalCar;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;

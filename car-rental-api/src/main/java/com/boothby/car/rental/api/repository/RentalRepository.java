@@ -1,4 +1,4 @@
-package com.boothby.car.rental.api.ports.rental_repository;
+package com.boothby.car.rental.api.repository;
 
 public interface RentalRepository {
     

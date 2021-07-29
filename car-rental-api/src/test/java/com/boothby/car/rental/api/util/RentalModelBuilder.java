@@ -1,4 +1,4 @@
-package com.boothby.car.rental.api.utility;
+package com.boothby.car.rental.api.util;
 
 import java.text.DateFormat;
 import java.text.ParseException;

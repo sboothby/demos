@@ -1,4 +1,4 @@
-package com.boothby.car.rental.api.core.impl;
+package com.boothby.car.rental.api.service;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -8,11 +8,6 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.boothby.car.rental.api.core.CarLocatorService;
-import com.boothby.car.rental.api.core.DriverHistoryService;
-import com.boothby.car.rental.api.core.InsuranceBinderService;
-import com.boothby.car.rental.api.core.RentalAgreementService;
-import com.boothby.car.rental.api.core.RentalService;
 import com.boothby.car.rental.api.core.exception.CarNotFoundException;
 import com.boothby.car.rental.api.core.exception.DriverException;
 import com.boothby.car.rental.api.core.exception.InsuranceException;

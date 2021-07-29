@@ -1,4 +1,4 @@
-package com.boothby.car.rental.api.core;
+package com.boothby.car.rental.api.service;
 
 import com.boothby.car.rental.api.core.exception.RentalContractException;
 import com.boothby.car.rental.api.core.model.RentalCarRequest;
