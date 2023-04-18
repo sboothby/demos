@@ -1,1 +1,6 @@
 target
+.idea/*
+.aws-composer/*
+*build.gradle
+vehicle-history-demo-api-canvas/.aws-composer/20230418T160949935/template.yaml
+vehicle-history-demo-api-canvas/.aws-composer/20230418T160437344/vehicle-history-api-demo.yaml
